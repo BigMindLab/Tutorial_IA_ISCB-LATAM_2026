@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use these materials, please cite them as below."
+title: "AI-Powered Workflows for Modern Bioinformatics: Multiomics, Immunoinformatics, and Protein Structural Analysis"
+type: software
+authors:
+  - family-names: Requena
+    given-names: David
+  - family-names: Osorio Mogollón
+    given-names: Cleidy
+  - family-names: Andrade Martinez
+    given-names: Juan
+  - family-names: Tachiquin
+    given-names: David
+  - family-names: Garbozo
+    given-names: Daniel
+  - family-names: Almeyda
+    given-names: Jennifer
+repository-code: "https://github.com/BigMindLab/Tutorial_IA_ISCB-LATAM_2026"
+license: MIT
+date-released: 2026-10-14
+keywords:
+  - bioinformatics
+  - artificial intelligence
+  - AlphaGenome
+  - immunoinformatics
+  - AlphaFold
+  - ISCB
