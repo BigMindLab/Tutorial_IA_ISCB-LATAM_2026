@@ -1,0 +1,8 @@
+alphagenome==0.10.0
+numpy
+pandas
+pyarrow
+matplotlib
+plotnine
+jupyterlab
+ipykernel
