@@ -41,6 +41,7 @@ In a notebook, retrieve the secret with:
 from google.colab import userdata
 
 api_key = userdata.get("ALPHA_GENOME_API_KEY")
+```
 
 ## 4. If you do not have an API key
 
