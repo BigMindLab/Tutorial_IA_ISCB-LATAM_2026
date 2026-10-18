@@ -20,13 +20,22 @@ The AlphaGenome API is available for non-commercial use, subject to the
 3. Add a secret named `ALPHA_GENOME_API_KEY` and paste your key as its value.
 4. Enable notebook access for this secret.
 
+In a notebook, retrieve the secret with:
+
+```python
+from google.colab import userdata
+
+api_key = userdata.get("ALPHA_GENOME_API_KEY")
+```
+
 ## 3. Add the key to GitHub Codespaces
 
 1. Open your GitHub account **Settings**.
-2. Go to **Codespaces** secrets and select **New secret**.
-3. Name the secret `ALPHA_GENOME_API_KEY`, enter your API key, and allow access
+2. Select **Codespaces** in the left sidebar.
+3. Under **Codespaces secrets**, select **New secret**.
+4. Name the secret `ALPHA_GENOME_API_KEY`, enter your API key, and allow access
    to this repository.
-4. If your Codespace is already running, stop and restart it so the new secret
+5. If your Codespace is already running, stop and restart it so the new secret
    becomes available.
 
 In Python, read the secret from the environment:
@@ -35,11 +44,6 @@ In Python, read the secret from the environment:
 import os
 
 api_key = os.environ.get("ALPHA_GENOME_API_KEY")
-In a notebook, retrieve the secret with:
-
-from google.colab import userdata
-
-api_key = userdata.get("ALPHA_GENOME_API_KEY")
 ```
 
 ## 4. If you do not have an API key
