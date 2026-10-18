@@ -37,7 +37,6 @@ import os
 api_key = os.environ.get("ALPHA_GENOME_API_KEY")
 In a notebook, retrieve the secret with:
 
-```python
 from google.colab import userdata
 
 api_key = userdata.get("ALPHA_GENOME_API_KEY")
