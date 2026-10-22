@@ -68,12 +68,15 @@ This is a length- and position-matched synthetic control for the exercise. It is
 
 ### Biological contexts
 
-The exercise compares a hematopoietic context with an unrelated tissue context:
+The exercise compares a hematopoietic context with an unrelated tissue context, with T cells as an optional lineage context:
 
 | Context | Ontology term | Description | Use |
 | --- | --- | --- | --- |
 | Hematopoietic progenitor | `CL:0001059` | Common myeloid progenitor, CD34-positive | Matches the CD34-positive hematopoietic context used in the AlphaGenome TAL1 example |
+| T cell | `CL:0000084` | T-cell | Optional comparison with the lineage of origin of T-ALL |
 | Liver | `UBERON:0002107` | Liver | Unrelated tissue comparison |
+
+All three terms were checked against the AlphaGenome human output metadata (`model.output_metadata`). Each has RNA-seq, DNase and histone ChIP-seq tracks (including H3K27ac and H3K4me3). None has contact map tracks.
 
 ### Recommended background readings
 
