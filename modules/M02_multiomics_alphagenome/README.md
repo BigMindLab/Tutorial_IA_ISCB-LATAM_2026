@@ -78,7 +78,7 @@ The exercise compares a hematopoietic context with an unrelated tissue context:
 ### Recommended background readings
 
 - Mansour MR, Abraham BJ, Anders L, et al. **An oncogenic super-enhancer formed through somatic mutation of a noncoding intergenic element.** *Science*. 2014;346(6215):1373–1377. (https://doi.org/10.1126/science.1259037)
-- Li Z, Abraham BJ, Berezovskaya A, et al. **APOBEC signature mutation generates an oncogenic enhancer that drives LMO1 expression in T-ALL.** *Leukemia*. 2017;31:2057–2064. (https://doi.org/10.1038/leu.2017.75)
+- Liu Y, Li C, Shen S, et al. **Discovery of regulatory noncoding variants in individual cancer genomes by using cis-X.** *Nature Genetics*. 2020;52(8):811–818. (https://doi.org/10.1038/s41588-020-0659-5)
 - Smith C, Goyal A, Weichenhan D, et al. **TAL1 activation in T-cell acute lymphoblastic leukemia: a novel oncogenic 3′ neo-enhancer.** *Haematologica*. 2023;108(5):1259–1271. (https://doi.org/10.3324/haematol.2022.281583)
 
 ### Analysis reference
