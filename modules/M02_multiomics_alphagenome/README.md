@@ -75,7 +75,7 @@ The exercise compares a hematopoietic context with an unrelated tissue context:
 | Hematopoietic progenitor | `CL:0001059` | Common myeloid progenitor, CD34-positive | Matches the CD34-positive hematopoietic context used in the AlphaGenome TAL1 example |
 | Liver | `UBERON:0002107` | Liver | Unrelated tissue comparison |
 
-## Recommended background readings
+### Recommended background readings
 
 - Mansour MR, Abraham BJ, Anders L, et al. **An oncogenic super-enhancer formed through somatic mutation of a noncoding intergenic element.** *Science*. 2014;346(6215):1373–1377. (https://doi.org/10.1126/science.1259037)
 - Li Z, Abraham BJ, Berezovskaya A, et al. **APOBEC signature mutation generates an oncogenic enhancer that drives LMO1 expression in T-ALL.** *Leukemia*. 2017;31:2057–2064. (https://doi.org/10.1038/leu.2017.75)
