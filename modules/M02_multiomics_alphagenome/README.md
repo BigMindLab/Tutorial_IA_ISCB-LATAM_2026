@@ -52,7 +52,7 @@ TAL1 is a transcription factor that is frequently dysregulated in T-cell acute l
 - **Locus window used for visualization:** `chr1:47209255-47242023` (AlphaGenome example workflow; TAL1 is on the negative strand).
 - **Gene annotation:** GENCODE v46, using the protein-coding MANE Select transcript.
 - **TAL1 identifiers:** `ENSG00000162367`; MANE Select transcript `ENST00000691006.1`, corresponding to RefSeq `NM_001290403.2`.
-- **Gene coordinates cross-check:** `chr1:47216290-47232335`, negative strand. This gene span is distinct from the larger locus window used in the example workflow.
+- **Gene coordinates cross-check:** `chr1:47216290-47232225`, negative strand. This gene span is distinct from the larger locus window used in the example workflow.
 
 The GENCODE v46 annotation and MANE Select transcript are used to display the gene model in the analysis. The locus window provides context for visualizing the variant and nearby regulatory regions.
 
