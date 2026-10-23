@@ -1,0 +1,8 @@
+{
+ "type": "dict",
+ "keys": [
+  "request",
+  "gene_interval",
+  "gtf"
+ ]
+}
