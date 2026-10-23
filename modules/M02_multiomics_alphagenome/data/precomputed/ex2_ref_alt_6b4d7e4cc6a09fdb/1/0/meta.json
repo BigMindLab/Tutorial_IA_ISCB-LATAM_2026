@@ -1,0 +1,8 @@
+{
+ "type": "dict",
+ "keys": [
+  "RNA_SEQ",
+  "DNASE",
+  "H3K27ac"
+ ]
+}
