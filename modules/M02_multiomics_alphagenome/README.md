@@ -31,6 +31,15 @@ By the end of this module, participants will be able to:
 | Discussion | 6 min |
 | **Total** | **45 min** |
 
+## Offline results
+
+`data/precomputed/` holds the saved API results, so both exercises run without a key. To regenerate them:
+
+1. With a valid key, set `SAVE_PRECOMPUTED = True` in Exercises 1 and 2 and run all cells.
+2. Set it back to `False`, restart the kernel without a key and run both notebooks again.
+
+Keep the folder under 50 MB.
+
 ## Case study: TAL1 MuTE insertion
 
 ### Biological context
