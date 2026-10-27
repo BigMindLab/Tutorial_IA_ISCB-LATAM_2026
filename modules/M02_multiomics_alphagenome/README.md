@@ -1,6 +1,6 @@
 # M02: Multiomics with AlphaGenome
 
-**Time:** 09:45-10:30 | **Type:** Hands-on
+**Time:** 13:45-14:30 | **Type:** Hands-on
 
 From DNA sequence to regulatory activity, gene expression, chromatin architecture and non-coding variant prioritization with AlphaGenome.
 Case study: oncogenic non-coding variants at the *TAL1* locus in T-cell acute lymphoblastic leukemia (T-ALL).
