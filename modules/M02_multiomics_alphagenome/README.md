@@ -89,8 +89,10 @@ All three terms were checked against the AlphaGenome human output metadata (`mod
 
 ### Recommended background readings
 
+- Avsec, Ž., Latysheva, N., Cheng, J., et al. (2026). Advancing regulatory variant effect prediction with AlphaGenome. Nature, 649, 1206–1218. (https://doi.org/10.1038/s41586-025-10014-0)
 - Mansour MR, Abraham BJ, Anders L, et al. **An oncogenic super-enhancer formed through somatic mutation of a noncoding intergenic element.** *Science*. 2014;346(6215):1373–1377. (https://doi.org/10.1126/science.1259037)
 - Liu Y, Li C, Shen S, et al. **Discovery of regulatory noncoding variants in individual cancer genomes by using cis-X.** *Nature Genetics*. 2020;52(8):811–818. (https://doi.org/10.1038/s41588-020-0659-5)
+- AlphaGenome docs: example analysis workflow, TAL1 locus (alphagenomedocs.com)
 - Smith C, Goyal A, Weichenhan D, et al. **TAL1 activation in T-cell acute lymphoblastic leukemia: a novel oncogenic 3′ neo-enhancer.** *Haematologica*. 2023;108(5):1259–1271. (https://doi.org/10.3324/haematol.2022.281583)
 
 ### Analysis reference
