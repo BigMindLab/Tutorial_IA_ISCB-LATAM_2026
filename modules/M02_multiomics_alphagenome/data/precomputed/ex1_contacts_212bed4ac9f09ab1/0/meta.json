@@ -1,0 +1,21 @@
+{
+ "type": "json",
+ "value": {
+  "schema": 1,
+  "assembly": "hg38",
+  "interval": {
+   "chromosome": "chr1",
+   "start": 46699969,
+   "end": 47748545,
+   "strand": "-",
+   "name": "TAL1"
+  },
+  "ontology_terms": [
+   "EFO:0002784",
+   "EFO:0001187"
+  ],
+  "requested_outputs": [
+   "CONTACT_MAPS"
+  ]
+ }
+}

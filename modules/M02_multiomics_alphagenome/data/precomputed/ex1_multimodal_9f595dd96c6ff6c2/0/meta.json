@@ -1,0 +1,29 @@
+{
+ "type": "json",
+ "value": {
+  "schema": 1,
+  "assembly": "hg38",
+  "interval": {
+   "chromosome": "chr1",
+   "start": 46699969,
+   "end": 47748545,
+   "strand": "-",
+   "name": "TAL1"
+  },
+  "ontology_terms": [
+   "CL:0001059",
+   "UBERON:0002107"
+  ],
+  "requested_outputs": [
+   "RNA_SEQ",
+   "DNASE",
+   "CHIP_HISTONE",
+   "CHIP_TF"
+  ],
+  "retained_histone_marks": [
+   "H3K27ac",
+   "H3K4me3"
+  ],
+  "retained_tf": "CTCF"
+ }
+}

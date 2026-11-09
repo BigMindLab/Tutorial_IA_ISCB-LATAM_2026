@@ -1,0 +1,34 @@
+{
+ "type": "json",
+ "value": {
+  "schema": 1,
+  "client_version": "0.10.0",
+  "assembly": "hg38",
+  "interval": {
+   "chromosome": "chr1",
+   "start": 46699969,
+   "end": 47748545,
+   "strand": "-",
+   "name": "TAL1"
+  },
+  "variant": {
+   "chromosome": "chr1",
+   "position": 47239296,
+   "reference_bases": "C",
+   "alternate_bases": "CCGTTTCCTAACC",
+   "name": "Jurkat"
+  },
+  "scorers": [
+   "GeneMaskLFCScorer(requested_output=RNA_SEQ)",
+   "CenterMaskScorer(requested_output=DNASE, width=501, aggregation_type=DIFF_LOG2_SUM)",
+   "CenterMaskScorer(requested_output=CHIP_HISTONE, width=2001, aggregation_type=DIFF_LOG2_SUM)"
+  ],
+  "merge_stranded_gene_tracks": true,
+  "contexts": [
+   "CL:0001059",
+   "UBERON:0002107"
+  ],
+  "retained_gene": "TAL1",
+  "retained_histone_mark": "H3K27ac"
+ }
+}

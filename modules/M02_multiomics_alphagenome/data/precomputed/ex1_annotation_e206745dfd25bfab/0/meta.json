@@ -1,0 +1,12 @@
+{
+ "type": "json",
+ "value": {
+  "schema": 1,
+  "assembly": "hg38",
+  "annotation_url": "https://storage.googleapis.com/alphagenome/reference/gencode/hg38/gencode.v46.annotation.gtf.gz.feather",
+  "gene_symbol": "TAL1",
+  "window_bp": 1048576,
+  "transcripts": "protein-coding MANE Select",
+  "plot_margin_bp": 4096
+ }
+}

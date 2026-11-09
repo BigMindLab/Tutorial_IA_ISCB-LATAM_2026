@@ -1,0 +1,10 @@
+{
+ "type": "json",
+ "value": {
+  "chromosome": "chr1",
+  "start": 47216289,
+  "end": 47232225,
+  "strand": "-",
+  "name": "TAL1"
+ }
+}

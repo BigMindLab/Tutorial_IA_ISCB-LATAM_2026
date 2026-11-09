@@ -1,0 +1,12 @@
+{
+ "type": "TrackData",
+ "interval": {
+  "chromosome": "chr1",
+  "start": 46699969,
+  "end": 47748545,
+  "strand": ".",
+  "name": ""
+ },
+ "uns": null,
+ "resolution": 128
+}
