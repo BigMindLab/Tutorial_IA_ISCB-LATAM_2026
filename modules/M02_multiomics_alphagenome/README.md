@@ -8,7 +8,7 @@ Case study: oncogenic non-coding variants at the *TAL1* locus in T-cell acute ly
 | Notebook | Content |
 |----------|---------|
 | `notebooks/setup.ipynb` | Install, API key, smoke test |
-| `notebooks/explore_locus_TAL1.ipynb` | Exercise 1: multi-modal exploration of the TAL1 locus |
+| `notebooks/explore_locus_TAL1.ipynb` | Exercise 1: multi-modal exploration of the TAL1 locus. Includes its own setup, so it runs on its own |
 | `notebooks/score_variant_TAL1.ipynb` | Exercise 2: scoring and validating a TAL1 enhancer variant |
 
 _Content in preparation (see milestone "M02 AlphaGenome")._
