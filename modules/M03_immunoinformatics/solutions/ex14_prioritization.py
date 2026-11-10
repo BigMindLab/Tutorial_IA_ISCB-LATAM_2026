@@ -78,6 +78,70 @@ SB_THRESHOLD = 0.5
 WB_THRESHOLD = 2.0
 
 
+def regions_from_deeptmhmm(path: Path) -> list[dict]:
+    """Topology regions from a DeepTMHMM predicted_topologies.3line file.
+
+    This is the fallback for a protein that is NOT in UniProt, which is the
+    normal case for a sequence from your own study. DeepTMHMM labels every
+    residue, so the same filters can be built from its output:
+
+        S  signal peptide      becomes signal_peptide, dropped before ranking
+        B  beta barrel strand  becomes transmembrane
+        M  alpha helical TM    becomes transmembrane
+
+    Everything else is left as mature protein.
+    """
+    import itertools
+
+    lines = [l.strip() for l in open(path, encoding="utf-8") if l.strip()]
+    if len(lines) < 3:
+        return []
+    labels = lines[2]
+    regions = []
+    position = 1
+    for label, group in itertools.groupby(labels):
+        n = len(list(group))
+        start, end = position, position + n - 1
+        position += n
+        if label == "S":
+            regions.append({"type": "Signal", "start": start, "end": end,
+                            "description": "predicted by DeepTMHMM"})
+        elif label in ("B", "M"):
+            regions.append({"type": "Transmembrane", "start": start, "end": end,
+                            "description": "predicted by DeepTMHMM"})
+    return regions
+
+
+def load_regions(log) -> tuple[list[dict], str]:
+    """Topology regions, from curated annotation when available, else predicted.
+
+    Order of preference:
+      1. data/P35077.json      curated UniProt annotation, only valid for fhaC
+      2. the DeepTMHMM output  works for ANY protein, including your own
+      3. nothing               the topology filter is skipped, with a warning
+
+    Point to discuss in the room: option 1 is evidence and option 2 is a
+    prediction. Using a predicted signal peptide to drop candidates means one
+    model's output is deciding what another model never gets to see.
+    """
+    uniprot = DATA / "P35077.json"
+    predicted = DATA / "precomputed" / "deeptmhmm_fhaC.3line"
+
+    if uniprot.exists():
+        return uniprot_regions(uniprot), "curated UniProt annotation (P35077)"
+    if predicted.exists():
+        log("      [note] No UniProt entry found, falling back to DeepTMHMM.")
+        log("             This is the normal path for a protein from your own")
+        log("             study, which will not have a UniProt accession.")
+        return regions_from_deeptmhmm(predicted), "DeepTMHMM prediction"
+
+    log("      [warning] No topology source at all. The signal peptide filter")
+    log("                will be skipped, so peptides that are cleaved off")
+    log("                during secretion stay in the ranking. Run SignalP or")
+    log("                DeepTMHMM on your sequence to enable it.")
+    return [], "none"
+
+
 def uniprot_regions(path: Path) -> list[dict]:
     """Signal peptide, transmembrane strands and domains from a UniProt entry."""
     with open(path, encoding="utf-8") as fh:
@@ -136,8 +200,9 @@ def main() -> int:
     log("      %s" % header[:90])
     log("      %d residues" % len(seq))
 
-    regions = uniprot_regions(DATA / "P35077.json")
-    log("\n      UniProt annotation used as a filter (%d regions):" % len(regions))
+    regions, source = load_regions(log)
+    log("\n      Topology source: %s" % source)
+    log("      %d regions used as a filter:" % len(regions))
     for r in regions[:12]:
         log("        %-20s %4d-%-4d %s" % (r["type"], r["start"], r["end"],
                                            r["description"][:45]))

@@ -11,7 +11,8 @@ EXERCISE 14 - Prioritising candidates (slide 24)
       fhaC
       584 residues
 
-      UniProt annotation used as a filter (19 regions):
+      Topology source: curated UniProt annotation (P35077)
+      19 regions used as a filter:
         Signal                  1-30   
         Chain                  31-584  Filamentous hemagglutinin transporter protein
         Transmembrane         242-248  Beta stranded

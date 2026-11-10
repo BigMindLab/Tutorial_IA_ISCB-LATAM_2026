@@ -170,6 +170,28 @@ def main():
     print()
     print("sequence length: %d residues" % len(seq))
 
+    if not os.path.exists(UNIPROT_JSON):
+        print()
+        print("  NO CURATED REFERENCE AVAILABLE")
+        print("  ------------------------------")
+        print("  data/P35077.json is missing, so there is nothing to score the")
+        print("  predictors against. That is the normal situation for a protein")
+        print("  from your own study, which has no UniProt accession.")
+        print()
+        print("  What to do instead:")
+        print("    1. Run SignalP and DeepTMHMM on your sequence and compare")
+        print("       them against EACH OTHER. Two independent predictions of")
+        print("       the same boundary is still evidence.")
+        print("    2. If a close homologue is in UniProt, fetch its entry and")
+        print("       transfer the annotation, keeping in mind that positions")
+        print("       shift with every insertion or deletion in the alignment.")
+        print("    3. Treat the topology as predicted, not known, and say so")
+        print("       wherever the shortlist is reported.")
+        print()
+        print("  Exercise 14 handles this automatically: with no UniProt entry")
+        print("  it falls back to the DeepTMHMM output for the same filters.")
+        return
+
     regions = load_uniprot_regions(UNIPROT_JSON)
     signal = [r for r in regions if r["type"] == "Signal"]
     strands = [r for r in regions if r["type"] == "Transmembrane"]
