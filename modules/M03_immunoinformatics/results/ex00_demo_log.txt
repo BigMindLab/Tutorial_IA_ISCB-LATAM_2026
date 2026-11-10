@@ -1,0 +1,251 @@
+﻿==============================================================================
+fhaC DEMO - the whole workflow on one protein, no training
+==============================================================================
+
+  Protein : fhaC, filamentous hemagglutinin transporter
+            Bordetella pertussis, UniProtKB P35077, 584 residues
+  Training: none. Pretrained weights are loaded from disk.
+
+  A note on counting, because it confuses people every time.
+  Part 1 reports 584 rows, one per residue. Part 2 reports 576
+  peptides, because 584 residues hold 576 overlapping 9-mers,
+  and 2880 pairs, because each peptide is scored against 5 HLA
+  alleles. Same protein throughout.
+
+##############################################################################
+#  PART 1 of 2   Where does fhaC go?   (slides 18 and 19)
+#  Signal peptide and membrane topology, scored against the curated UniProt annotation of P35077.
+##############################################################################
+==========================================================================
+EXERCISE 11 - Topology reference for fhaC (slides 18 and 19)
+==========================================================================
+
+  NO TRAINING HAPPENS IN THIS EXERCISE. Everything below is YOUR
+  protein, fhaC, compared against its curated UniProt annotation.
+
+  Note on counting: this exercise works RESIDUE BY RESIDUE, so it
+  reports 584 rows. Exercises 12 and 14 work PEPTIDE BY PEPTIDE and
+  report 576, because 584 residues hold 576 overlapping 9-mers.
+  Same protein, different unit of analysis.
+
+sequence length: 584 residues
+
+[reference] UniProt P35077 curated annotation
+  signal peptide      1-30
+  domain              89-164  POTRA
+  transmembrane       16 beta strands, from 242 to 584
+wrote results/topology_reference.csv (584 rows)
+
+  per residue reference written, label counts: {'S': 30, 'O': 360, 'B': 194}
+
+[question 1] Does fhaC enter the secretory pathway? (slide 18)
+  DeepTMHMM also predicts a signal peptide, ending at 32.
+  UniProt annotates it ending at 30.
+  difference: +2 residues
+  Two independent predictions of the same boundary is already
+  something to compare, before SignalP is even installed.
+
+  SignalP output not supplied, so only the reference is shown.
+  UniProt annotates a signal peptide at 1-30.
+  Run ex7_signalp6.py once SignalP 6.0 is installed, then pass
+  --signalp results/signalp6/prediction_results.txt to compare.
+
+  Predict before you run it: fhaC is from a Gram negative bacterium,
+  so the organism argument is 'other', not 'eukarya'. Which of the five
+  signal peptide types on slide 18 do you expect, and why?
+
+[question 2] Is it a membrane protein, and which way round? (slide 19)
+  UniProt annotates 16 transmembrane beta strands.
+  >fhaC | BETA  length=584
+  label counts: {'S': 32, 'P': 272, 'B': 138, 'O': 142}
+  predicted beta strands: 16
+  UniProt beta strands  : 16
+  raw per residue agreement: 47.3%
+  That number looks poor, and it is misleading. The reference
+  marks every non strand residue as 'O' because UniProt does not
+  label inside and outside, so every 'P' DeepTMHMM predicts is
+  counted as a mismatch even when it is right.
+  agreement on the strand or not strand question: 88.4%
+  That is the comparison the reference can actually support.
+
+[why this matters downstream]
+  The first 30 residues are cut off during secretion, so they are not
+  part of the mature protein. Any class I or class II candidate that
+  falls entirely inside 1-30 should be dropped before ranking.
+    9-mers fully inside the signal peptide: 22
+    15-mers fully inside the signal peptide: 16
+
+  That is the first filter of the prioritisation exercise, and it comes
+  from slide 18, not from any binding predictor.
+
+==========================================================================
+QUESTIONS TO DISCUSS
+==========================================================================
+  1. SignalP gives a signal peptide type and a cleavage site. Neither
+     says anything about antigenicity. What does each one actually
+     constrain in the rest of this workflow?
+  2. The reference here is curated annotation, much of it from a solved
+     structure. If a predictor disagrees with it, is the predictor wrong?
+  3. DeepTMHMM labels every residue. SignalP labels only the N terminus.
+     Why does that difference matter when you chain them together?
+  4. fhaC is an extracellular bacterial protein. Which MHC class is the
+     natural route for it, and what does that imply for exercises that
+     only predict class I? (Look back at slide 20.)
+
+##############################################################################
+#  PART 2 of 2   From peptides to a shortlist   (slides 20 to 24)
+#  Binding and presentation with MHCflurry, immunogenicity from the pretrained model, then the pVACtools style filter chain.
+##############################################################################
+==============================================================================
+EXERCISE 14 - Prioritising candidates (slide 24)
+==============================================================================
+
+  NO TRAINING HAPPENS IN THIS EXERCISE.
+  Every number below comes from YOUR protein, fhaC. The only thing
+  borrowed from elsewhere is the model weights saved by exercise 12,
+  which were trained there on IEDB peptides.
+
+[14.1] [fhaC] Candidates and topology
+      fhaC
+      584 residues
+
+      UniProt annotation used as a filter (19 regions):
+        Signal                  1-30   
+        Chain                  31-584  Filamentous hemagglutinin transporter protein
+        Transmembrane         242-248  Beta stranded
+        Transmembrane         261-269  Beta stranded
+        Transmembrane         277-285  Beta stranded
+        Transmembrane         294-306  Beta stranded
+        Transmembrane         309-321  Beta stranded
+        Transmembrane         334-349  Beta stranded
+        Transmembrane         354-370  Beta stranded
+        Transmembrane         378-395  Beta stranded
+        Transmembrane         399-409  Beta stranded
+        Transmembrane         431-444  Beta stranded
+        ... and 7 more
+
+      576 overlapping 9-mers (584 residues - 9 + 1 = 576)
+      Exercise 11 reports 584 rows because it works residue by residue.
+      This one works peptide by peptide. Same protein, different unit.
+      breakdown by region:
+          419  mature
+           68  POTRA
+           67  Beta stranded
+           22  signal_peptide
+
+      22 fall inside the signal peptide. That fragment is cut off
+      during secretion, which is what SignalP answered in Q1 on slide 18,
+      so those peptides are not part of the mature protein and are dropped.
+
+[14.2] [fhaC] Binding and presentation (MHCflurry 2.0)
+      predicting HLA-A*02:01 over 576 peptides ...
+      predicting HLA-A*01:01 over 576 peptides ...
+      predicting HLA-A*24:02 over 576 peptides ...
+      predicting HLA-B*07:02 over 576 peptides ...
+      predicting HLA-B*44:02 over 576 peptides ...
+      2880 rows (peptide by allele)
+
+      breakdown using the slide 21 thresholds:
+          2709  non binder
+           120  weak (WB)
+            51  strong (SB)
+
+[14.3] [fhaC] Immunogenicity (pretrained weights) and TCR evidence
+      immunogenicity score for 2880 pairs
+      TCR evidence: 'no evidence' for all of them.
+      That is not laziness. Exercise 13 showed NetTCR is only valid over
+      its 17 training peptides, and fhaC is not among them. Putting a
+      score there would be inventing information.
+
+[14.4] [fhaC] The pVACtools style filter chain
+
+          2880   0. all peptide and allele pairs
+          2770   1. outside the signal peptide (Q1, SignalP)
+           163   2. binding, affinity %rank below 2.0 (Q2)
+           109   3. presentation, %rank below 2.0 (Q2)
+            54   4. immunogenicity above the median (Q3)
+
+      Each filter is a different question from the module. None of them
+      proves anything. They only shorten the list by an explicit criterion.
+
+      Weights used: {'binding': 0.35, 'presentation': 0.35, 'immunogenicity': 0.3}
+
+      SHORTLIST, top 15:
+  peptide  start  end        region         HLA  affinity_nM  affinity_rank  presentation_rank  immunogenicity_score TCR_evidence  final_score
+RLFDPAPLV    103  111         POTRA HLA-A*02:01       14.943          0.059              0.054                 0.853  no evidence        0.876
+LLNSYQITV    465  473        mature HLA-A*02:01       11.683          0.037              0.018                 0.565  no evidence        0.810
+RMAGLAAGV    537  545 Beta stranded HLA-A*02:01       15.003          0.060              0.148                 0.800  no evidence        0.764
+KQASVAPFV    511  519        mature HLA-A*02:01       28.490          0.148              0.146                 0.790  no evidence        0.679
+ALYDRGYAT    134  142         POTRA HLA-A*02:01       42.554          0.232              0.133                 0.808  no evidence        0.658
+AMPGWQDKV    188  196        mature HLA-A*02:01       40.785          0.222              0.116                 0.781  no evidence        0.654
+YATSIVTFV    140  148         POTRA HLA-A*02:01       25.922          0.131              0.044                 0.589  no evidence        0.647
+SLLGKQASV    507  515        mature HLA-A*02:01       22.564          0.110              0.130                 0.652  no evidence        0.622
+AQAQLLPGA     30   38        mature HLA-A*02:01       80.052          0.421              0.128                 0.734  no evidence        0.559
+FTYSKPVGA    556  564        mature HLA-A*02:01       84.043          0.436              0.056                 0.642  no evidence        0.558
+YMALAGQPI    442  450        mature HLA-A*02:01       39.754          0.217              0.461                 0.763  no evidence        0.542
+GVVDGVLKL    151  159         POTRA HLA-A*02:01       83.929          0.436              0.196                 0.710  no evidence        0.508
+RFDLPYARM    546  554        mature HLA-B*07:02      110.965          0.417              0.158                 0.663  no evidence        0.498
+ALTRPPVEL     60   68        mature HLA-A*02:01      108.218          0.526              0.590                 0.808  no evidence        0.474
+RNYDLMYSV    296  304 Beta stranded HLA-A*02:01      106.184          0.519              0.439                 0.767  no evidence        0.470
+
+      results/ex14_shortlist.csv
+      results/ex14_full_table.csv
+
+      Allele coverage in the shortlist:
+           34  HLA-A*02:01
+           13  HLA-B*07:02
+            6  HLA-A*24:02
+            1  HLA-A*01:01
+      If an allele ends up with no candidates, that patient group has no
+      coverage. That is a design criterion, not a detail.
+      figure written to results/ex14_prioritization.png
+
+[14.5] And TIDE? The other half of the slide
+      TIDE appears nowhere in any of the above, and that is the point.
+      Its input is the expression profile of a TUMOUR and its output is
+      ONE score per tumour, not per peptide. The slide says it outright:
+      'No peptide, no HLA allele, no epitope anywhere in this diagram'.
+
+      The two questions side by side:
+            aspect           pVACtools (what we did)                             TIDE
+  unit of analysis                 peptide by allele           one tumour, one sample
+             input protein plus HLA plus predictions RNA-seq or NanoString expression
+            output               ranked epitope list      a checkpoint response score
+        needs HLA?                               yes                               no
+needs the antigen?                               yes                               no
+   works for fhaC?                               yes   no, fhaC is a pathogen antigen
+
+      results/ex14_pvactools_vs_tide.csv
+      Closing line from the slide: 'Pathogen epitopes and tumour
+      neoantigens are different problems'. A neoantigen needs the
+      patient's own HLA type and sequencing of THEIR tumour. fhaC does not.
+
+==============================================================================
+QUESTIONS TO DISCUSS
+==============================================================================
+  1. We chose the weights of the combined score ourselves. Change them
+     and watch the top 15 move. What does that say about a shortlist?
+  2. We filtered on the median immunogenicity. Why a median rather than
+     an absolute threshold? What is wrong with each option?
+  3. The TCR_evidence column is empty. What experiment would fill it?
+  4. We did not use conservation across B. pertussis strains. Why would
+     that be the obvious next filter for a vaccine?
+  5. fhaC reaches the immune system as an extracellular protein, so its
+     natural route is MHC class II. What does that make this class I
+     shortlist, and which exercise would you run next?
+
+[log] results/ex14_log.txt
+
+==============================================================================
+DONE. What you have now
+==============================================================================
+  results/topology_reference.csv   per residue reference for fhaC
+  results/ex14_shortlist.csv       the ranked candidate list
+  results/ex14_full_table.csv      every peptide and allele pair
+  results/ex14_prioritization.png  the funnel and the ranking
+
+  None of this proves a T cell response. It is a ranked list of
+  hypotheses, which is the honest output of the whole module.
+
+  For the methodology behind the models, run ex12_immunogenicity.py
+  and ex13_nettcr.py. Those two train, and that is their point.

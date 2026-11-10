@@ -1,0 +1,75 @@
+﻿==========================================================================
+EXERCISE 11 - Topology reference for fhaC (slides 18 and 19)
+==========================================================================
+
+  NO TRAINING HAPPENS IN THIS EXERCISE. Everything below is YOUR
+  protein, fhaC, compared against its curated UniProt annotation.
+
+  Note on counting: this exercise works RESIDUE BY RESIDUE, so it
+  reports 584 rows. Exercises 12 and 14 work PEPTIDE BY PEPTIDE and
+  report 576, because 584 residues hold 576 overlapping 9-mers.
+  Same protein, different unit of analysis.
+
+sequence length: 584 residues
+
+[reference] UniProt P35077 curated annotation
+  signal peptide      1-30
+  domain              89-164  POTRA
+  transmembrane       16 beta strands, from 242 to 584
+wrote results/topology_reference.csv (584 rows)
+
+  per residue reference written, label counts: {'S': 30, 'O': 360, 'B': 194}
+
+[question 1] Does fhaC enter the secretory pathway? (slide 18)
+  DeepTMHMM also predicts a signal peptide, ending at 32.
+  UniProt annotates it ending at 30.
+  difference: +2 residues
+  Two independent predictions of the same boundary is already
+  something to compare, before SignalP is even installed.
+
+  SignalP output not supplied, so only the reference is shown.
+  UniProt annotates a signal peptide at 1-30.
+  Run ex7_signalp6.py once SignalP 6.0 is installed, then pass
+  --signalp results/signalp6/prediction_results.txt to compare.
+
+  Predict before you run it: fhaC is from a Gram negative bacterium,
+  so the organism argument is 'other', not 'eukarya'. Which of the five
+  signal peptide types on slide 18 do you expect, and why?
+
+[question 2] Is it a membrane protein, and which way round? (slide 19)
+  UniProt annotates 16 transmembrane beta strands.
+  >fhaC | BETA  length=584
+  label counts: {'S': 32, 'P': 272, 'B': 138, 'O': 142}
+  predicted beta strands: 16
+  UniProt beta strands  : 16
+  raw per residue agreement: 47.3%
+  That number looks poor, and it is misleading. The reference
+  marks every non strand residue as 'O' because UniProt does not
+  label inside and outside, so every 'P' DeepTMHMM predicts is
+  counted as a mismatch even when it is right.
+  agreement on the strand or not strand question: 88.4%
+  That is the comparison the reference can actually support.
+
+[why this matters downstream]
+  The first 30 residues are cut off during secretion, so they are not
+  part of the mature protein. Any class I or class II candidate that
+  falls entirely inside 1-30 should be dropped before ranking.
+    9-mers fully inside the signal peptide: 22
+    15-mers fully inside the signal peptide: 16
+
+  That is the first filter of the prioritisation exercise, and it comes
+  from slide 18, not from any binding predictor.
+
+==========================================================================
+QUESTIONS TO DISCUSS
+==========================================================================
+  1. SignalP gives a signal peptide type and a cleavage site. Neither
+     says anything about antigenicity. What does each one actually
+     constrain in the rest of this workflow?
+  2. The reference here is curated annotation, much of it from a solved
+     structure. If a predictor disagrees with it, is the predictor wrong?
+  3. DeepTMHMM labels every residue. SignalP labels only the N terminus.
+     Why does that difference matter when you chain them together?
+  4. fhaC is an extracellular bacterial protein. Which MHC class is the
+     natural route for it, and what does that imply for exercises that
+     only predict class I? (Look back at slide 20.)

@@ -1,0 +1,37 @@
+##gff-version 3
+# fhaC Length: 584
+# fhaC Number of predicted TMRs: 16
+fhaC	signal	1	32				
+fhaC	periplasm	33	242				
+fhaC	Beta sheet	243	250				
+fhaC	outside	251	259				
+fhaC	Beta sheet	260	267				
+fhaC	periplasm	268	277				
+fhaC	Beta sheet	278	285				
+fhaC	outside	286	295				
+fhaC	Beta sheet	296	303				
+fhaC	periplasm	304	310				
+fhaC	Beta sheet	311	318				
+fhaC	outside	319	337				
+fhaC	Beta sheet	338	345				
+fhaC	periplasm	346	357				
+fhaC	Beta sheet	358	365				
+fhaC	outside	366	383				
+fhaC	Beta sheet	384	391				
+fhaC	periplasm	392	401				
+fhaC	Beta sheet	402	412				
+fhaC	outside	413	430				
+fhaC	Beta sheet	431	439				
+fhaC	periplasm	440	451				
+fhaC	Beta sheet	452	460				
+fhaC	outside	461	500				
+fhaC	Beta sheet	501	509				
+fhaC	periplasm	510	515				
+fhaC	Beta sheet	516	524				
+fhaC	outside	525	538				
+fhaC	Beta sheet	539	547				
+fhaC	periplasm	548	551				
+fhaC	Beta sheet	552	560				
+fhaC	outside	561	574				
+fhaC	Beta sheet	575	583				
+fhaC	periplasm	584	584				

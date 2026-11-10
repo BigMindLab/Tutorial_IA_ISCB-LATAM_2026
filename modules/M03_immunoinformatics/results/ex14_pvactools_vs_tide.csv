@@ -1,0 +1,7 @@
+aspect,pVACtools (what we did),TIDE
+unit of analysis,peptide by allele,"one tumour, one sample"
+input,protein plus HLA plus predictions,RNA-seq or NanoString expression
+output,ranked epitope list,a checkpoint response score
+needs HLA?,yes,no
+needs the antigen?,yes,no
+works for fhaC?,yes,"no, fhaC is a pathogen antigen"
