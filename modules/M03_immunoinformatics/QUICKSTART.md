@@ -88,8 +88,14 @@ source .venv/bin/activate
 python solutions/ex00_fhaC_demo.py
 ```
 
-If you used a custom `--env-dir`, activate that directory instead. To verify
-packages, downloaded inputs and model inference:
+You can also run the demo without activation by selecting the module's Python:
+
+```bash
+.venv/bin/python solutions/ex00_fhaC_demo.py
+```
+
+If you used a custom `--env-dir`, use that directory's interpreter instead.
+With the environment active, verify packages, downloaded inputs and inference:
 
 ```bash
 python -m pip check
@@ -257,6 +263,7 @@ module by clone or ZIP upload, then installs its dependencies remotely with
 
 | Problem | Action |
 |---|---|
+| `ModuleNotFoundError: No module named 'torch'` | Select `.venv/bin/python` or activate the tutorial Conda environment; if dependencies are missing there, rerun `bash setup.sh --use-current-env` |
 | `externally-managed-environment` | Run `bash setup.sh` and activate `.venv` before using `python -m pip` |
 | `ensurepip` or `pip` is missing | Install the venv package matching your Python, or use Conda; select a fresh `--env-dir` if creation was incomplete |
 | Unsupported Python / no compatible wheel | Use Python 3.10-3.12; the Conda specification selects 3.11 |

@@ -40,6 +40,7 @@ Usage
 """
 from __future__ import annotations
 
+import importlib.util
 import os
 import subprocess
 import sys
@@ -75,7 +76,33 @@ def banner(title: str, subtitle: str) -> None:
     sys.stdout.flush()
 
 
+def check_dependencies() -> bool:
+    required = {
+        "numpy": "numpy", "pandas": "pandas", "matplotlib": "matplotlib",
+        "sklearn": "scikit-learn", "torch": "torch", "mhcflurry": "mhcflurry",
+    }
+    missing = [package for module, package in required.items()
+               if importlib.util.find_spec(module) is None]
+    if not missing:
+        return True
+
+    print("[ERROR] Missing packages: " + ", ".join(missing), file=sys.stderr)
+    print("Python interpreter: " + sys.executable, file=sys.stderr)
+    print("From the module directory, activate the tutorial environment:", file=sys.stderr)
+    print("  source .venv/bin/activate", file=sys.stderr)
+    print("  python solutions/ex00_fhaC_demo.py", file=sys.stderr)
+    print("Or select its Python directly:", file=sys.stderr)
+    print("  .venv/bin/python solutions/ex00_fhaC_demo.py", file=sys.stderr)
+    print("For Conda, use: conda activate m03-immunoinformatics", file=sys.stderr)
+    print("If packages are missing inside the active environment, run:", file=sys.stderr)
+    print("  bash setup.sh --use-current-env", file=sys.stderr)
+    return False
+
+
 def main() -> int:
+    if not check_dependencies():
+        return 1
+
     print("=" * 78)
     print("fhaC DEMO - the whole workflow on one protein, no training")
     print("=" * 78)
@@ -83,6 +110,7 @@ def main() -> int:
     print("  Protein : fhaC, filamentous hemagglutinin transporter")
     print("            Bordetella pertussis, UniProtKB P35077, 584 residues")
     print("  Training: none. Pretrained weights are loaded from disk.")
+    print("  Python  : " + sys.executable)
     print()
     print("  A note on counting, because it confuses people every time.")
     print("  Part 1 reports 584 rows, one per residue. Part 2 reports 576")

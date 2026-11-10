@@ -35,6 +35,12 @@ If your terminal is already in this module directory, omit the `cd` command.
 MHCflurry weights and public datasets, and checks imports and model inference.
 Activate the environment in each new terminal.
 
+To select the module's Python without activating the environment:
+
+```bash
+.venv/bin/python solutions/ex00_fhaC_demo.py
+```
+
 The demo runs topology analysis and prioritisation with pretrained models.
 **Exercises 12 and 13 are optional training exercises, not prerequisites for
 the demo.** The installation does not include the external predictors listed
