@@ -3,6 +3,8 @@
 What to type, what goes in, what comes out, and what each number means.
 
 One protein throughout: **fhaC**, 584 residues, already in `data/fhaC.fasta`.
+The numerical results below describe the bundled example run. Scores and
+shortlist sizes can change with the model weights and environment.
 
 ---
 
@@ -14,22 +16,27 @@ cd modules/M03_immunoinformatics
 
 ```bash
 bash setup.sh
+source .venv/bin/activate
 ```
 
-That installs the packages, downloads the MHCflurry weights and fetches the
-public datasets. Around five minutes, mostly the weights.
+That creates/reuses an isolated `.venv`, installs the pinned packages,
+downloads the MHCflurry weights and fetches the public datasets, then checks a
+small prediction. Python 3.10-3.12 is supported. The first run can take several
+minutes. See [QUICKSTART.md](QUICKSTART.md) for Conda or a missing venv package.
+Activate `.venv` in each new terminal; use `python` from that environment.
 
-It does **not** install NetMHCpan, NetMHCIIpan, SignalP or DeepTMHMM. Those
-need an academic licence from DTU and a manual download. Every exercise still
-runs, because the outputs of those tools for fhaC are in `data/precomputed`.
+NetMHCpan, NetMHCIIpan, SignalP and DeepTMHMM are installed separately,
+following the requirements and licence of each release. The core demo uses
+the bundled FhaC predictions in `data/precomputed`; the external-tool
+wrappers still require their respective installations.
 
 ---
 
 ## Part A, the tools you already have installed
 
-These four are the ones the team has licences for. Run them on your own
-machine, not in Codespaces, because the licensed binaries cannot be installed
-there.
+These wrappers require the corresponding external predictors. Install them
+under their own licences and follow the environment instructions for each
+release. See [QUICKSTART.md](QUICKSTART.md#external-predictors).
 
 ### A1. SignalP 6.0, does fhaC enter the secretory pathway?
 
@@ -68,7 +75,7 @@ python3 solutions/ex8_deeptmhmm.py data/fhaC.fasta
 | **Input** | `data/fhaC.fasta` |
 | **Output** | `results/deeptmhmm_summary.txt`, plus the tool's own `predicted_topologies.3line` and `TMRs.gff3` |
 | **What it means** | Every residue gets a label. S signal peptide, I inside, O outside, M alpha helical membrane, B beta barrel membrane, P periplasm. |
-| **What to look at** | The number of B segments. fhaC is an outer membrane transporter, so expect a beta barrel. A verified run is already in `data/precomputed/deeptmhmm_fhaC.3line` and gives **16 strands**. |
+| **What to look at** | The number of B segments. fhaC is an outer membrane transporter, so expect a beta barrel. A bundled prediction is in `data/precomputed/deeptmhmm_fhaC.3line` and gives **16 strands**. |
 
 Two gotchas. BioLib now needs an account and no longer runs locally. The DTU
 academic package runs offline but pins `fair-esm==0.4.0`, and it crashes on the
@@ -219,6 +226,9 @@ python3 solutions/ex13_nettcr.py
 NetTCR is the only tool here that needs something a protein sequence can never
 provide: CDR3 alpha and CDR3 beta from real T cell sequencing.
 
+This input preparation step requires `results/prime_class_I.csv`. Run exercise
+6 with PRIME installed to generate that table first.
+
 ```bash
 python3 solutions/ex10_nettcr_prepare.py data/tcrs_example.csv 20
 ```
@@ -267,21 +277,22 @@ residues, because the last 8 residues cannot start another full 9-mer.
 
 ## Running it in GitHub Codespaces
 
-The repository already has a devcontainer, so Codespaces works. Open it, then:
+In a Codespace with Python 3.10-3.12 and venv available, run:
 
 ```bash
-cd modules/M03_immunoinformatics && bash setup.sh
+cd modules/M03_immunoinformatics
+bash setup.sh
+source .venv/bin/activate
 ```
 
 ```bash
 python3 solutions/ex00_fhaC_demo.py
 ```
 
-What works there: everything in parts B, C and D. What does not: the licensed
-tools in part A, because they cannot be installed in a Codespace. Their outputs
-for fhaC are committed in `data/precomputed`, so the exercises that consume
-them still run.
+The core demo and training exercises use the tutorial environment. The
+external predictors in part A require separate installation and licensing.
+Part D additionally requires a PRIME output table; run exercise 6 first.
+Bundled FhaC predictions in `data/precomputed` support the core demo.
 
-On the default two CPU machine the demo takes a few minutes and the two
-training exercises take noticeably longer. If you plan to run part C live,
-pick a four core machine when creating the Codespace.
+The training exercises can take longer than the pretrained demo. Run setup
+and check the exercises before the session.

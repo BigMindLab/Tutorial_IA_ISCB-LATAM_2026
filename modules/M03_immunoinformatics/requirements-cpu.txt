@@ -1,0 +1,5 @@
+# CPU wheels for Linux x86_64 (including WSL and Codespaces).
+# Other architectures/macOS use the standard PyTorch wheel in requirements.txt.
+--extra-index-url https://download.pytorch.org/whl/cpu
+-r requirements.txt
+torch==2.5.1+cpu; sys_platform == "linux" and platform_machine == "x86_64"

@@ -1,12 +1,12 @@
-"""Exercise 10 - NetTCR (TCR-peptide recognition): input preparation only. NOT TESTED HERE.
+"""Exercise 10 - NetTCR (TCR-peptide recognition): input preparation only.
 
 fhaC alone gives no TCR. NetTCR needs CDR3 alpha and CDR3 beta sequences, which you must supply.
 Put them in tcrs.csv with columns: name,CDR3a,CDR3b (no placeholders are invented here).
 
 What this script does: takes the PRIME top candidates from results/prime_class_I.csv (run ex6
 first), crosses them with your TCRs, and writes results/nettcr_input.csv with columns
-peptide,CDR3a,CDR3b. Then run NetTCR per its own README; I did not verify its command line, and
-the column names are my assumption of its input format: confirm both before use.
+peptide,CDR3a,CDR3b. Check these columns against the input requirements of the
+NetTCR release you use before passing the table to that package.
 
 Usage:
     python ex10_nettcr_prepare.py tcrs.csv [top_n]

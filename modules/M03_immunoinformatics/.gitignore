@@ -24,6 +24,9 @@ __pycache__/
 .ipynb_checkpoints/
 venv/
 .venv/
+.venv-*/
+.conda/
+.cache/
 
 # data/precomputed and results are committed on purpose, so that the exercises
 # can be read on GitHub without running anything.

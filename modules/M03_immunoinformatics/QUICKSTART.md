@@ -1,209 +1,274 @@
-# QUICKSTART, module M03.1
+# QUICKSTART: M03 Immunoinformatics
 
-Two paths. Pick the one that matches what you have.
+## Prerequisites
 
-- **Path 1, Colab.** Nothing to install. Covers exercises 11 to 14, which is
-  slides 18, 19, 22, 23 and 24. Start here if you are short on time.
-- **Path 2, local install on Linux.** Adds the licensed tools, so you also get
-  NetMHCpan, NetMHCIIpan, SignalP 6.0, DeepTMHMM, MixMHCpred and PRIME running
-  on your own machine.
+- Linux or Ubuntu/WSL and Bash. On Windows, run the commands in the Ubuntu/WSL
+  terminal.
+- Python **3.10, 3.11 or 3.12**, with `venv` and `pip`, or Conda/Mamba.
+- Internet access to download packages, MHCflurry models and public datasets.
+- Disk space for the Python environment, model cache and downloaded inputs.
 
-Everything uses **fhaC**, which ships in `data/fhaC.fasta`.
-
----
-
-## Path 1, Colab
-
-Open `notebooks/immunoinformatics_colab.ipynb` in Google Colab and run the
-cells top to bottom. CPU is enough. No GPU is needed anywhere in this module.
-
-Budget 25 to 35 minutes, most of it MHCflurry scoring thousands of peptides.
-
----
-
-## Path 2, local
-
-### Base environment
-
-Python 3.10 or newer for track B.
+A GPU is not required. Commands below assume the module directory is the
+working directory. From the repository root, enter it with:
 
 ```bash
-python3 -m venv venv
+cd modules/M03_immunoinformatics
 ```
+
+## Install with a virtual environment
+
+Check the Python version:
 
 ```bash
-source venv/bin/activate
+python3 --version
 ```
+
+On Ubuntu, if the selected Python cannot create a virtual environment, install
+its matching venv package. For Ubuntu's Python 3.10, for example:
 
 ```bash
-pip install -r requirements.txt
+sudo apt install python3.10-venv
 ```
+
+Then install and run:
 
 ```bash
-mhcflurry-downloads fetch models_class1_presentation
+bash setup.sh
+source .venv/bin/activate
+python solutions/ex00_fhaC_demo.py
 ```
+
+The installer creates or reuses `.venv`, installs pinned dependencies, runs
+`pip check`, downloads MHCflurry presentation weights and public inputs, and
+checks model inference. It does not install external predictors such as
+SignalP or NetMHCpan. Linux x86_64 uses the CPU PyTorch wheel.
+
+If you need to choose an installed Python when creating a new environment:
 
 ```bash
-python utils/download_data.py
+PYTHON=python3.11 bash setup.sh --env-dir .venv-py311
+source .venv-py311/bin/activate
+python solutions/ex00_fhaC_demo.py
 ```
 
-Check it works:
+An existing environment keeps its own interpreter. Use a new `--env-dir` to
+select a different Python version. Relative environment paths are resolved
+from the module directory.
+
+## Install with Conda or Mamba
+
+Use this option when a compatible Python or `venv` is unavailable. From the
+module directory:
 
 ```bash
-python solutions/ex11_topology_reference.py
+conda env create -f environment.yml
+conda activate m03-immunoinformatics
+bash setup.sh --use-current-env
+python solutions/ex00_fhaC_demo.py
 ```
 
-That should print the fhaC signal peptide at 1 to 30 and 16 transmembrane beta
-strands. If it does, track B is ready.
+`environment.yml` selects Python 3.11 and installs the same requirements as the
+virtual environment. `--use-current-env` reuses the active environment instead
+of creating `.venv`. It requires an active virtual environment or Conda prefix.
+Use `mamba env create -f environment.yml` if you manage environments with Mamba.
 
-### Licensed tools
-
-Each one is obtained by you, under your own licence. None of them is
-redistributed in this repository.
-
-**NetMHCpan 4.1 and NetMHCIIpan 4.0.** Request an academic licence from DTU
-Health Tech and follow their installer. Then point the wrappers at the
-binaries:
+For later sessions, activate the environment before running exercises:
 
 ```bash
-export NETMHCPAN_BIN=/path/to/netMHCpan
+conda activate m03-immunoinformatics
+python solutions/ex00_fhaC_demo.py
 ```
+
+## Run after installation
+
+For the virtual environment, activate it in each new terminal:
 
 ```bash
-export NETMHCIIPAN_BIN=/path/to/netMHCIIpan
+source .venv/bin/activate
+python solutions/ex00_fhaC_demo.py
 ```
 
-**SignalP 6.0.** Also DTU, academic licence and manual download. It provides a
-`signalp6` command. For fhaC the organism argument is `other`, not `eukarya`,
-because SignalP 6.0 only separates eukaryotes from everything else.
-
-**DeepTMHMM.** Two options, and both have a catch.
-
-The BioLib route no longer runs locally:
+If you used a custom `--env-dir`, activate that directory instead. To verify
+packages, downloaded inputs and model inference:
 
 ```bash
-pip install pybiolib
+python -m pip check
+python utils/check_environment.py --check-data
 ```
 
-```bash
-biolib run DTU/DeepTMHMM --fasta data/fhaC.fasta
-```
-
-This now requires a BioLib account, and `machine="local"` was removed, so the
-job runs in their cloud.
-
-The academic package from DTU does run offline. Two things to know before you
-start. It pins `fair-esm==0.4.0`, and the alphabet object saved inside the
-package is not compatible with newer releases, so that exact version matters.
-It also calls `plt.style.use('seaborn-whitegrid')`, a style name matplotlib
-removed, so on a modern matplotlib it crashes at the very last step **after**
-writing `predicted_topologies.3line` and `TMRs.gff3`. Your results are already
-on disk when that happens.
-
-A verified DeepTMHMM run on fhaC ships in
-`data/precomputed/deeptmhmm_fhaC.3line`, so the exercise works even if you
-never get the tool installed.
-
-**MixMHCpred 2.2.** Clone the `v2.2` tag, not the default branch, which is 3.0:
-
-```bash
-git clone --branch v2.2 https://github.com/GfellerLab/MixMHCpred.git
-```
-
-Compile it, then:
-
-```bash
-export MIXMHCPRED=/path/to/MixMHCpred
-```
-
-**PRIME 2.0.** Same group, same pattern:
-
-```bash
-git clone --branch v2.0 https://github.com/GfellerLab/PRIME.git
-```
-
-```bash
-export PRIME=/path/to/PRIME
-```
-
-**DeepImmuno.** Clone it and keep the path, because it has to be run from its
-own root:
-
-```bash
-git clone https://github.com/frankligy/DeepImmuno.git
-```
-
----
-
-## Running the exercises
-
-Order matters in one place only: exercise 14 loads the model exercise 12 saves.
-
-```bash
-python solutions/ex11_topology_reference.py
-```
-
-```bash
-python solutions/ex12_immunogenicity.py
-```
-
-```bash
-python solutions/ex13_nettcr.py
-```
+The demo runs exercises 11 and 14 using the bundled pretrained immunogenicity
+checkpoint and downloaded MHCflurry models. It does not train a model.
+Exercise 14 can also be run directly:
 
 ```bash
 python solutions/ex14_prioritization.py
 ```
 
-Once SignalP and DeepTMHMM are installed, feed their output back into
-exercise 11 to score them against the curated reference:
+To inspect topology using the bundled DeepTMHMM output:
 
 ```bash
-python solutions/ex11_topology_reference.py --signalp results/signalp6/prediction_results.txt --deeptmhmm biolib_results/predicted_topologies.3line
+python solutions/ex11_topology_reference.py --deeptmhmm data/precomputed/deeptmhmm_fhaC.3line
 ```
 
-For the licensed binding tools:
+The training exercises are optional and can be run independently:
 
 ```bash
+python solutions/ex12_immunogenicity.py
+python solutions/ex13_nettcr.py
+```
+
+Exercise 12 overwrites `data/precomputed/ex12_immunogenicity_cnn.pt`; later
+runs of exercise 14 and the demo use the newly trained weights. Save a copy of
+that checkpoint first if you want to retain the bundled model.
+
+All generated tables, figures and logs are written to `results/`, replacing
+files with the same names. The bundled outputs are examples; prediction
+scores and shortlist sizes can vary with the model weights and environment.
+
+## Setup options
+
+```bash
+bash setup.sh --help
+```
+
+| Option | Effect |
+|---|---|
+| `--env-dir PATH` | Create or reuse a venv at `PATH`; default `.venv` |
+| `--use-current-env` | Install into the active venv or Conda environment |
+| `--skip-models` | Skip MHCflurry weight download and pretrained-model checks |
+| `--skip-data` | Skip public input download and input checks |
+
+The two environment options are mutually exclusive. Skipping downloads does
+not make missing inputs optional for exercises that require them. To install
+packages only:
+
+```bash
+bash setup.sh --skip-models --skip-data
+source .venv/bin/activate
+python utils/check_environment.py --packages-only
+```
+
+Rerun `bash setup.sh` without skip flags to complete the installation. In the
+Conda workflow, retain `--use-current-env` when rerunning setup. MHCflurry keeps
+its weights in its user data cache; inspect the location with:
+
+```bash
+mhcflurry-downloads info
+```
+
+## External predictors
+
+Install each external predictor according to its own release instructions
+and licence. Keep incompatible dependencies in separate environments. The
+commands below configure existing installations; they do not install them.
+
+### NetMHCpan and NetMHCIIpan
+
+Set the paths to the executables and run the wrappers:
+
+```bash
+export NETMHCPAN_BIN=/path/to/netMHCpan
+export NETMHCIIPAN_BIN=/path/to/netMHCIIpan
 python solutions/ex1_netmhcpan.py data/fhaC.fasta
-```
-
-```bash
 python solutions/ex2_netmhciipan.py data/fhaC.fasta
 ```
 
-```bash
-python solutions/ex3_mhcflurry.py data/fhaC.fasta
-```
+The optional IEDB route uses a remote service instead of local executables:
 
 ```bash
+python solutions/ex15_netmhcpan_iedb.py
+```
+
+This requires internet access and service availability. It is not needed for
+the core demo.
+
+### MixMHCpred and PRIME
+
+The wrappers target MixMHCpred 2.2 and PRIME 2.0. With those releases installed:
+
+```bash
+export MIXMHCPRED=/path/to/MixMHCpred
+export PRIME=/path/to/PRIME
 python solutions/ex4_mixmhcpred.py data/fhaC.fasta
+python solutions/ex6_prime.py data/fhaC.fasta
 ```
+
+### SignalP and DeepTMHMM
+
+Run the SignalP wrapper with the `signalp6` command on `PATH`, for example
+from its own environment:
 
 ```bash
-python solutions/ex5_compare.py
+python solutions/ex7_signalp6.py data/fhaC.fasta other
 ```
 
-Alleles are edited in `utils/common.py`, in the `CLASS_I_ALLELES` and
-`CLASS_II_ALLELES` lists.
+To analyse the bundled DeepTMHMM output, no DeepTMHMM installation is needed:
 
----
+```bash
+python solutions/ex8_deeptmhmm.py data/fhaC.fasta data/precomputed/deeptmhmm_fhaC.3line
+```
 
-## Known problems
+If the `.3line` argument is omitted, exercise 8 invokes `biolib run
+DTU/DeepTMHMM`; that route needs a configured BioLib installation and access
+to its service. Outputs for a different protein must be generated for that
+protein; the bundled FhaC prediction cannot be reused.
 
-**`ModuleNotFoundError: No module named 'common'`.** Run the scripts from
-inside `solutions/`, or let the path shim at the top of each file do its job.
-The shared helpers live in `utils/`.
+After generating new topology predictions, return to the tutorial environment
+and provide their actual paths to exercise 11:
 
-**DeepImmuno scores a peptide called "peptide".** Your input CSV has a header
-row. It must not have one, because DeepImmuno reads it with `header=None`.
-`ex9_deepimmuno.py` already writes the file correctly.
+```bash
+python solutions/ex11_topology_reference.py --signalp results/signalp6/prediction_results.txt --deeptmhmm /path/to/predicted_topologies.3line
+```
 
-**DeepImmuno cannot find its models.** Run it from the DeepImmuno repository
-root. It loads `./data/` and `./models/` by relative path.
+Both flags are optional. Without them, exercise 11 reports the UniProt
+reference alone.
 
-**MHCflurry refuses a peptide.** It only accepts the 20 standard amino acids.
-The helpers filter out anything else before predicting.
+### Original DeepImmuno and NetTCR packages
 
-**Results land somewhere unexpected.** Everything is written to `results/` at
-the module root, no matter which directory you launched from.
+Exercise 9 writes an input file and prints a command for the original
+DeepImmuno package:
+
+```bash
+python solutions/ex9_deepimmuno.py data/fhaC.fasta
+```
+
+Install that package in a separate environment and run the printed command
+from its repository root. Exercise 9 does not execute DeepImmuno itself.
+
+Exercise 10 combines `results/prime_class_I.csv` with supplied TCR sequences:
+
+```bash
+python solutions/ex10_nettcr_prepare.py data/tcrs_example.csv 20
+```
+
+Run exercise 6 first to create the PRIME table. This step only prepares
+peptide/CDR3 pairs; check the input requirements of your NetTCR release before
+using them. The bundled TCR examples are not experimental evidence for FhaC.
+See [data/README_tcrs.md](data/README_tcrs.md).
+
+## Colab
+
+Open `notebooks/immunoinformatics_colab.ipynb` in Google Colab, select a
+Python 3.10-3.12 runtime and run the cells in order. The notebook obtains the
+module by clone or ZIP upload, then installs its dependencies remotely with
+`setup.sh`. Local package installation is not required.
+
+## Troubleshooting
+
+| Problem | Action |
+|---|---|
+| `externally-managed-environment` | Run `bash setup.sh` and activate `.venv` before using `python -m pip` |
+| `ensurepip` or `pip` is missing | Install the venv package matching your Python, or use Conda; select a fresh `--env-dir` if creation was incomplete |
+| Unsupported Python / no compatible wheel | Use Python 3.10-3.12; the Conda specification selects 3.11 |
+| Missing models or public inputs | Rerun setup without skip flags, keeping `--use-current-env` for Conda |
+| `signalp6`, `biolib` or another external command is missing | Activate the predictor's environment or configure its executable path |
+| DeepImmuno cannot find `data/` or `models/` | Run the original package from its own repository root |
+
+Confirm the selected interpreter when diagnosing environment problems:
+
+```bash
+python -c "import sys; print(sys.executable)"
+```
+
+See [README.md](README.md) for the module overview and
+[RUNBOOK.md](RUNBOOK.md) for exercise inputs and outputs.
