@@ -86,15 +86,24 @@ def check_dependencies() -> bool:
     if not missing:
         return True
 
+    venv_dir = os.path.join(MODULE, ".venv")
+    venv_python = os.path.join(venv_dir, "bin", "python")
+    in_module_env = os.path.realpath(sys.prefix) == os.path.realpath(venv_dir)
+    if not in_module_env and os.path.isfile(venv_python) and os.access(venv_python, os.X_OK):
+        print("Using module environment: " + venv_python, flush=True)
+        try:
+            os.execv(venv_python, [venv_python, os.path.abspath(__file__), *sys.argv[1:]])
+        except OSError as exc:
+            print("[ERROR] Could not start module environment: %s" % exc, file=sys.stderr)
+
     print("[ERROR] Missing packages: " + ", ".join(missing), file=sys.stderr)
     print("Python interpreter: " + sys.executable, file=sys.stderr)
-    print("From the module directory, activate the tutorial environment:", file=sys.stderr)
-    print("  source .venv/bin/activate", file=sys.stderr)
-    print("  python solutions/ex00_fhaC_demo.py", file=sys.stderr)
-    print("Or select its Python directly:", file=sys.stderr)
+    print("Install or repair the module environment from the module directory:", file=sys.stderr)
+    print("  bash setup.sh", file=sys.stderr)
+    print("Then select its Python directly:", file=sys.stderr)
     print("  .venv/bin/python solutions/ex00_fhaC_demo.py", file=sys.stderr)
-    print("For Conda, use: conda activate m03-immunoinformatics", file=sys.stderr)
-    print("If packages are missing inside the active environment, run:", file=sys.stderr)
+    print("For a separate Conda environment, activate it before installing:", file=sys.stderr)
+    print("  conda activate m03-immunoinformatics", file=sys.stderr)
     print("  bash setup.sh --use-current-env", file=sys.stderr)
     return False
 

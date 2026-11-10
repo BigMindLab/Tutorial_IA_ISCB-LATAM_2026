@@ -33,7 +33,10 @@ python solutions/ex00_fhaC_demo.py
 If your terminal is already in this module directory, omit the `cd` command.
 `setup.sh` creates or reuses `.venv`, installs the pinned packages, downloads
 MHCflurry weights and public datasets, and checks imports and model inference.
-Activate the environment in each new terminal.
+Activate the environment in each new terminal. If the demo is started with a
+Python that lacks its dependencies, it automatically retries with this
+module's `.venv/bin/python` when available. Other exercises require the
+selected environment to be active or its interpreter to be specified.
 
 To select the module's Python without activating the environment:
 

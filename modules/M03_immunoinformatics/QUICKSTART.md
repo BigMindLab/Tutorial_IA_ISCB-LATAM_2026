@@ -88,7 +88,12 @@ source .venv/bin/activate
 python solutions/ex00_fhaC_demo.py
 ```
 
-You can also run the demo without activation by selecting the module's Python:
+If the current Python lacks the demo dependencies, the demo automatically
+restarts with the module's `.venv/bin/python` when it exists. This includes
+starting from Miniconda's base Python. An incomplete `.venv` reports the
+missing packages and stops; run setup to finish its installation.
+
+You can also select the module's Python explicitly:
 
 ```bash
 .venv/bin/python solutions/ex00_fhaC_demo.py
