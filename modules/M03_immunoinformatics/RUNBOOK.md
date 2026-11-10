@@ -44,6 +44,19 @@ python3 solutions/ex7_signalp6.py data/fhaC.fasta other
 | **What it means** | A signal peptide means the protein is secreted, so those residues are cut off and are not part of the mature protein. It says nothing about antigenicity. |
 | **What to look at** | The cleavage position. UniProt annotates it at residue 30 for fhaC. Anything within a residue or two is agreement. |
 
+Three ways to get SignalP, in order of reliability:
+
+1. **Local install** with the DTU academic licence. This is the one to use.
+2. **The DTU web server** at services.healthtech.dtu.dk. Submitting works and
+   the job queues and runs, but it returned a failed run for fhaC on two
+   separate attempts while this module was being built, with a backend error
+   and no output files produced. Worth a try, not worth planning around.
+3. **Skip it.** DeepTMHMM already labels the signal peptide, and the committed
+   run puts the boundary at residue 32 against UniProt's 30. What SignalP adds
+   on top is the signal peptide *type*, one of the five on slide 18, and the
+   per residue n, h and c region probabilities. The cleavage site itself is
+   already answered twice over.
+
 ### A2. DeepTMHMM, is it a membrane protein and which way round?
 
 ```bash
