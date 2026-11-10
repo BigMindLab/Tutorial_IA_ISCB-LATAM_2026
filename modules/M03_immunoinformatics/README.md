@@ -56,6 +56,25 @@ Every arrow narrows the list and no arrow proves a T cell response.
 
 ---
 
+## Start here
+
+```bash
+cd modules/M03_immunoinformatics && bash setup.sh
+```
+
+```bash
+python3 solutions/ex00_fhaC_demo.py
+```
+
+[RUNBOOK.md](RUNBOOK.md) gives the input, the command, the output and the
+meaning for every single step, including the licensed tools. Read that one
+during the session.
+
+[report/index.html](report/index.html) is the results page, with the figures
+and real output excerpts. Open it in a browser or publish it with GitHub Pages.
+
+---
+
 ## Which script do I run?
 
 **To show the biology of fhaC, run one script:**
