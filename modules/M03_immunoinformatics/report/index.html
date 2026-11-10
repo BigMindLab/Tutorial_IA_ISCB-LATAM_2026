@@ -336,22 +336,29 @@ eukaryotes from everything else, and B. pertussis is Gram negative.</span></pre>
   <code>data/templates/</code>, so a run done on another machine can be pasted in by hand.</p>
 
   <div class="schema">
-    <div class="title">mixmhcpred_class_I.csv <span>real rows from fhaC</span></div>
+    <div class="title">mixmhcpred_class_I.csv <span>6906 rows, 43 SB, top 5 shown</span></div>
 <pre><span class="head">start,length,peptide,allele,score,rank,call</span>
-<span class="row">1,8,MTDATNRF,HLA-A*02:01,-3.578068,49.6938,NB
-1,8,MTDATNRF,HLA-A*24:02,-3.611811,27.2604,NB
-1,8,MTDATNRF,HLA-B*07:02,-4.104978,50.6827,NB</span></pre>
+<span class="row">507,9,SLLGKQASV,HLA-A*02:01,0.612282,0.00649037,SB
+9,9,RPGLVGRAL,HLA-B*07:02,0.481255,0.030257,SB
+576,9,LYINAGLSF,HLA-A*24:02,0.493821,0.0324064,SB
+465,9,LLNSYQITV,HLA-A*02:01,0.259589,0.035834,SB
+139,9,GYATSIVTF,HLA-A*24:02,0.331617,0.0479964,SB</span></pre>
   </div>
-  <p class="termcap">The negative <code>score</code> is normal for MixMHCpred, not an error.</p>
+  <p class="termcap">Sorted by <code>rank</code>, lower is better. Scores can also come out negative
+  for weak peptides, which is normal for MixMHCpred and not an error.</p>
 
   <div class="schema">
-    <div class="title">mhcflurry_class_I.csv <span>real rows from fhaC</span></div>
+    <div class="title">mhcflurry_class_I.csv <span>6906 rows, 60 SB, top 5 shown</span></div>
 <pre><span class="head">start,length,peptide,allele,affinity_nM,affinity_percentile,processing_score,presentation_score,presentation_percentile,call</span>
 <span class="row">9,9,RPGLVGRAL,HLA-B*07:02,13.54,0.002352,0.779360,0.988729,0.004721,SB
-465,9,LLNSYQITV,HLA-A*02:01,11.68,0.037398,0.489238,0.974643,0.017651,SB</span></pre>
+465,9,LLNSYQITV,HLA-A*02:01,11.68,0.037398,0.489238,0.974643,0.017651,SB
+140,9,YATSIVTFV,HLA-A*02:01,25.92,0.131372,0.571021,0.955700,0.043591,SB
+103,9,RLFDPAPLV,HLA-A*02:01,14.94,0.059435,0.346456,0.947909,0.053908,SB
+576,9,LYINAGLSF,HLA-A*24:02,31.68,0.044758,0.576872,0.946647,0.055635,SB</span></pre>
   </div>
   <p class="termcap">The only one of the four with a <code>processing_score</code>, which is what
-  happens to the peptide before it ever reaches the groove.</p>
+  happens to the peptide before it ever reaches the groove. Put the two tables side by side and
+  <code>RPGLVGRAL</code>, <code>LLNSYQITV</code> and <code>LYINAGLSF</code> appear in both.</p>
 
   <div class="schema">
     <div class="title">netmhcpan_class_I.csv <span class="pending">awaiting the team run</span></div>
@@ -541,9 +548,41 @@ DATNRFRPG  AASAQDDKII  ASSYSFGGAPAQETQY             0.357
     </figure>
   </div>
 
-  <h3>Why TIDE does not appear</h3>
-  <p>Because it answers a different question. The slide says it outright: <em>no peptide, no HLA
-  allele, no epitope anywhere in this diagram.</em></p>
+  <h3>Can either tool take FhaC? They differ</h3>
+  <p>It is tempting to read slide 24 as "both of these are for tumours, so neither works for a
+  pathogen". That is right for one of them and wrong for the other, and the difference is worth
+  knowing.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Entry point</th><th>Takes</th><th>Works for FhaC?</th></tr></thead>
+      <tbody>
+        <tr><td><code>pVACseq</code></td><td>a VCF of somatic variants plus the patient HLA type</td><td class="warn">no, needs a tumour</td></tr>
+        <tr><td><code>pVACfuse</code></td><td>fusion calls from tumour RNA</td><td class="warn">no, needs a tumour</td></tr>
+        <tr><td><code>pVACbind</code></td><td><strong>a FASTA of peptides</strong> plus an allele list</td><td class="ok">yes</td></tr>
+        <tr><td>TIDE</td><td>a tumour expression matrix</td><td class="warn">no, and never</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>pVACtools yes, through pVACbind.</strong> The figure on slide 24 shows pVACseq, which
+  starts from tumour sequencing, and that is what makes the whole pipeline look tumour only. But
+  pVACtools also ships <code>pVACbind</code>, whose input is a FASTA. Feed it the FhaC peptides and
+  an allele list and it runs the same filtering and ranking machinery. That is exactly what
+  exercise 14 reproduces by hand, which is why it is called a pVACtools style chain.</p>
+
+  <p><strong>TIDE no, and not for a licensing or practical reason.</strong> Its input is an
+  expression matrix of a tumour and its output is one score per sample. There is no slot for a
+  protein sequence anywhere in it. The slide says it outright: <em>no peptide, no HLA allele, no
+  epitope anywhere in this diagram.</em></p>
+
+  <div class="callout">
+    <p><strong>The real divide is not tumour versus pathogen.</strong> It is what the tool takes as
+    input. A neoantigen pipeline needs the patient's own HLA type and their tumour sequencing
+    because the antigen is created by their mutations. FhaC needs neither, because the antigen is
+    the same for everyone infected. Any tool whose input is a sequence plus an allele list can take
+    FhaC. Any tool whose input is a patient sample cannot.</p>
+  </div>
   <div class="tablewrap">
     <table>
       <thead><tr><th>Aspect</th><th>pVACtools, what we did</th><th>TIDE</th></tr></thead>

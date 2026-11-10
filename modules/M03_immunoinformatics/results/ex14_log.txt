@@ -110,13 +110,35 @@ RNYDLMYSV    296  304 Beta stranded HLA-A*02:01      106.184          0.519     
       'No peptide, no HLA allele, no epitope anywhere in this diagram'.
 
       The two questions side by side:
-            aspect           pVACtools (what we did)                             TIDE
-  unit of analysis                 peptide by allele           one tumour, one sample
-             input protein plus HLA plus predictions RNA-seq or NanoString expression
-            output               ranked epitope list      a checkpoint response score
-        needs HLA?                               yes                               no
-needs the antigen?                               yes                               no
-   works for fhaC?                               yes   no, fhaC is a pathogen antigen
+
+      BUT READ SLIDE 24 CAREFULLY. It is tempting to conclude that both
+      tools are for tumours, so neither can take fhaC. That is right
+      for one and wrong for the other:
+
+        pVACseq    VCF of somatic variants plus patient HLA  -> needs a tumour
+        pVACfuse   fusion calls from tumour RNA              -> needs a tumour
+        pVACbind   A FASTA OF PEPTIDES plus an allele list   -> works for fhaC
+        TIDE       a tumour expression matrix                -> never works
+
+      The figure on the slide shows pVACseq, which is why the whole
+      pipeline looks tumour only. pVACtools also ships pVACbind, whose
+      input is a FASTA. That is precisely what this exercise rebuilds
+      by hand, and why it is called a pVACtools STYLE chain.
+
+      The real divide is not tumour versus pathogen. It is what the tool
+      takes as input. A neoantigen needs the patient's own HLA type and
+      their tumour sequencing, because their mutations created it. fhaC
+      needs neither, because the antigen is the same for everyone
+      infected. Any tool that takes a sequence plus alleles can take
+      fhaC. Any tool that takes a patient sample cannot.
+
+            aspect pVACbind (what this rebuilds)   pVACseq (the slide figure)                                 TIDE
+  unit of analysis             peptide by allele            peptide by allele               one tumour, one sample
+             input   a FASTA plus an allele list somatic VCF plus patient HLA     RNA-seq or NanoString expression
+            output           ranked epitope list       ranked neoantigen list          a checkpoint response score
+        needs HLA?                           yes                          yes                                   no
+needs the antigen?                           yes                          yes                                   no
+   works for fhaC?                           yes  no, there is no tumour here no, and no input slot for a sequence
 
       results/ex14_pvactools_vs_tide.csv
       Closing line from the slide: 'Pathogen epitopes and tumour

@@ -398,16 +398,42 @@ def main() -> int:
     log("      'No peptide, no HLA allele, no epitope anywhere in this diagram'.")
     log("")
     log("      The two questions side by side:")
+    log("")
+    log("      BUT READ SLIDE 24 CAREFULLY. It is tempting to conclude that both")
+    log("      tools are for tumours, so neither can take fhaC. That is right")
+    log("      for one and wrong for the other:")
+    log("")
+    log("        pVACseq    VCF of somatic variants plus patient HLA  -> needs a tumour")
+    log("        pVACfuse   fusion calls from tumour RNA              -> needs a tumour")
+    log("        pVACbind   A FASTA OF PEPTIDES plus an allele list   -> works for fhaC")
+    log("        TIDE       a tumour expression matrix                -> never works")
+    log("")
+    log("      The figure on the slide shows pVACseq, which is why the whole")
+    log("      pipeline looks tumour only. pVACtools also ships pVACbind, whose")
+    log("      input is a FASTA. That is precisely what this exercise rebuilds")
+    log("      by hand, and why it is called a pVACtools STYLE chain.")
+    log("")
+    log("      The real divide is not tumour versus pathogen. It is what the tool")
+    log("      takes as input. A neoantigen needs the patient's own HLA type and")
+    log("      their tumour sequencing, because their mutations created it. fhaC")
+    log("      needs neither, because the antigen is the same for everyone")
+    log("      infected. Any tool that takes a sequence plus alleles can take")
+    log("      fhaC. Any tool that takes a patient sample cannot.")
+    log("")
     comparison = pd.DataFrame({
         "aspect": ["unit of analysis", "input", "output", "needs HLA?",
                    "needs the antigen?", "works for fhaC?"],
-        "pVACtools (what we did)": [
-            "peptide by allele", "protein plus HLA plus predictions",
+        "pVACbind (what this rebuilds)": [
+            "peptide by allele", "a FASTA plus an allele list",
             "ranked epitope list", "yes", "yes", "yes"],
+        "pVACseq (the slide figure)": [
+            "peptide by allele", "somatic VCF plus patient HLA",
+            "ranked neoantigen list", "yes", "yes",
+            "no, there is no tumour here"],
         "TIDE": [
             "one tumour, one sample", "RNA-seq or NanoString expression",
             "a checkpoint response score", "no", "no",
-            "no, fhaC is a pathogen antigen"],
+            "no, and no input slot for a sequence"],
     })
     log(comparison.to_string(index=False))
     comparison.to_csv(RESULTS / "ex14_pvactools_vs_tide.csv", index=False)
