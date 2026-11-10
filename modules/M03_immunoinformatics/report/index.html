@@ -219,9 +219,33 @@ results/ex14_prioritization.png  the funnel and the ranking</pre>
   something to compare against. The reference here is the curated UniProt annotation of P35077,
   much of it derived from a solved structure.</p>
 
+  <h3>The signal peptide, answered twice already</h3>
+  <p>The question on slide 18 is whether FhaC enters the secretory pathway. Two independent sources
+  already answer it, and they agree to within two residues.</p>
+
+  <div class="schema">
+    <div class="title">deeptmhmm_fhaC_TMRs.gff3 <span>real output, run under the DTU licence</span></div>
+<pre><span class="note">##gff-version 3
+# fhaC Length: 584
+# fhaC Number of predicted TMRs: 16</span>
+<span class="hl">fhaC   signal        1    32</span>
+fhaC   periplasm    33   242
+fhaC   Beta sheet  243   250
+fhaC   outside     251   259
+fhaC   Beta sheet  260   267
+fhaC   periplasm   268   277
+<span class="note">   ... 12 more beta sheets ...</span>
+fhaC   Beta sheet  575   583
+fhaC   periplasm   584   584</pre>
+  </div>
+  <p class="termcap">DeepTMHMM labels every residue, so it calls the signal peptide too, ending at
+  32. UniProt annotates the cleavage at 30. Two methods, two residues apart.</p>
+
   <h3>SignalP 6.0 <span class="pending">awaiting the team run</span></h3>
-  <p>SignalP needs a DTU academic licence, so it was not run here. This is the exact shape of its
-  output, ready for the numbers to drop in.</p>
+  <p>SignalP would add one thing the two sources above cannot: the signal peptide <em>type</em>,
+  one of the five on slide 18, plus the per residue n, h and c region probabilities. It needs a DTU
+  academic licence, so it was not run here. This is the exact shape of its output, ready for the
+  numbers to drop in.</p>
 
   <div class="schema">
     <div class="title">results/signalp6_summary.csv <span>9 columns</span></div>
