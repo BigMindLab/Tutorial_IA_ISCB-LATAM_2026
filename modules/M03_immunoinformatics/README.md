@@ -177,6 +177,35 @@ on several peptides, which is worth showing in the room.
 | `ex12_immunogenicity.py` | 22 | DeepImmuno-CNN and the PRIME 28 input vector, trained on 9,055 IEDB peptides | yes |
 | `ex13_nettcr.py` | 23 | NetTCR-2.0, plus the leave one peptide out experiment that finds its limit | yes |
 | `ex14_prioritization.py` | 24 | The pVACtools style filter chain over fhaC, and the contrast with TIDE | no |
+| `ex15_netmhcpan_iedb.py` | 20, 21 | **NetMHCpan 4.1 and NetMHCIIpan 4.0 with no local licence**, through the IEDB public API | no |
+| `ex16_consensus.py` | 20, 21 | Where three independent class I tools agree, and where class I meets class II | no |
+
+### The result worth showing
+
+`ex15` and `ex16` close the one real gap the module had. NetMHCpan and
+NetMHCIIpan need a DTU licence, but IEDB runs them on its own cluster behind a
+public API, so everyone gets the real tools on fhaC with nothing installed.
+
+Crossing the three class I tools gives **27 peptide and allele pairs** that
+NetMHCpan, MHCflurry and MixMHCpred all call a strong binder. MixMHCpred is
+position weight matrices rather than a network, so that agreement is not three
+versions of the same model nodding at each other.
+
+Then `ex16` checks something no slide asks for. **Four regions of fhaC carry
+both a class I consensus peptide and a top class II binder.** The best is
+residues 103 to 122, inside the POTRA domain, holding `RLFDPAPLV` for
+HLA-A\*02:01 and `APLVQDYLNRPLDNE` for DRB1\*15:01. fhaC is extracellular, so
+class II is its natural route, and a region feeding both CD8 and CD4 is a
+better candidate than either alone.
+
+### Not run here, on purpose
+
+**pVACtools and TIDE** stay on the slides. Exercise 14 reproduces what
+`pVACbind` does by hand, which makes the point without the install. Worth
+knowing for the discussion: `pVACbind` takes a FASTA so it is mechanically
+applicable to a bacterial antigen, while TIDE takes a tumour expression matrix
+and has no slot for a sequence at all. Applicable is not the same as validated,
+and pVACtools is published on tumour neoantigens.
 
 ---
 

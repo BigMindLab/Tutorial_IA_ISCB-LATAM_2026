@@ -180,8 +180,9 @@
   <div class="meta">
     <span>UniProtKB P35077 &middot; 584 residues</span>
     <span>576 nine-mers</span>
-    <span>5 HLA alleles</span>
-    <span>14 exercises</span>
+    <span>5 class I alleles &middot; 2 class II</span>
+    <span>16 exercises</span>
+    <span>no licence required</span>
   </div>
 </header>
 
@@ -361,29 +362,93 @@ eukaryotes from everything else, and B. pertussis is Gram negative.</span></pre>
   <code>RPGLVGRAL</code>, <code>LLNSYQITV</code> and <code>LYINAGLSF</code> appear in both.</p>
 
   <div class="schema">
-    <div class="title">netmhcpan_class_I.csv <span class="pending">awaiting the team run</span></div>
+    <div class="title">netmhcpan_class_I.csv <span>6906 rows, 71 SB, top 5 shown</span></div>
 <pre><span class="head">start,length,peptide,allele,score_EL,rank_EL,score_BA,rank_BA,affinity_nM,call</span>
-<span class="row">9,9,RPGLVGRAL,HLA-B*07:02,?,?,?,?,?,?</span></pre>
+<span class="row">103,9,RLFDPAPLV,HLA-A*02:01,0.983,0.01,,,,SB
+139,9,GYATSIVTF,HLA-A*24:02,0.966,0.01,,,,SB
+576,9,LYINAGLSF,HLA-A*24:02,0.950,0.01,,,,SB
+9,9,RPGLVGRAL,HLA-B*07:02,0.993,0.01,,,,SB
+138,10,RGYATSIVTF,HLA-A*24:02,0.935,0.02,,,,SB</span></pre>
   </div>
-  <p class="termcap">Two separate scores, and that split is the point of slide 21. BA was trained on
-  measured affinities, EL on peptides actually eluted from cells. Read <code>rank_EL</code>.</p>
+  <p class="termcap">The two BA columns are empty on purpose. IEDB returns the eluted ligand output
+  and <code>rank_EL</code> is the column to rank on anyway, so leaving them blank beats filling
+  them with something they are not.</p>
 
   <div class="schema">
-    <div class="title">netmhciipan_class_II.csv <span class="pending">awaiting the team run</span></div>
+    <div class="title">netmhciipan_class_II.csv <span>1140 rows, 38 SB, top 5 shown</span></div>
 <pre><span class="head">start,peptide,allele,score_EL,rank_EL,call</span>
-<span class="row">103,RLFDPAPLVQDYLNR,DRB1_0401,?,?,?</span></pre>
+<span class="row">108,APLVQDYLNRPLDNE,DRB1_1501,0.9440,0.04,SB
+107,PAPLVQDYLNRPLDN,DRB1_1501,0.9172,0.08,SB
+141,ATSIVTFVPPGVVDG,DRB1_1501,0.9138,0.09,SB
+327,RYGQYQSAGNSRSFG,DRB1_0401,0.9124,0.19,SB
+328,YGQYQSAGNSRSFGL,DRB1_0401,0.8976,0.20,SB</span></pre>
   </div>
   <p class="termcap">No <code>length</code> column, because every peptide is a 15-mer scored through
-  a 9-mer core. And the thresholds change: strong binder below 2, not below 0.5.</p>
+  a 9-mer core, and the thresholds change: strong binder below 2, not 0.5. The first two rows are
+  the same region shifted by one residue, which is what an open ended groove does.</p>
+
+  <h3>Where all three class I tools agree</h3>
+  <p>Any single ranking is one model's opinion. These three are built differently, and MixMHCpred
+  is not even a neural network, so agreement between them carries real weight.</p>
+
+  <div class="metrics">
+    <div class="metric"><span class="label">Strong binders, NetMHCpan</span><span class="value">71</span></div>
+    <div class="metric"><span class="label">Strong binders, MHCflurry</span><span class="value">60</span></div>
+    <div class="metric"><span class="label">Strong binders, MixMHCpred</span><span class="value">43</span></div>
+    <div class="metric hi"><span class="label">Called SB by all three at once</span><span class="value">27</span></div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Peptide</th><th>Pos</th><th>HLA</th><th>NetMHCpan</th><th>MHCflurry</th><th>MixMHCpred</th><th>Worst</th></tr></thead>
+      <tbody>
+        <tr><td class="pep">RPGLVGRAL</td><td class="num">9</td><td>B*07:02</td><td class="num">0.01</td><td class="num">0.0047</td><td class="num">0.0303</td><td class="num ok">0.0303</td></tr>
+        <tr><td class="pep">LLNSYQITV</td><td class="num">465</td><td>A*02:01</td><td class="num">0.03</td><td class="num">0.0177</td><td class="num">0.0358</td><td class="num ok">0.0358</td></tr>
+        <tr><td class="pep">LYINAGLSF</td><td class="num">576</td><td>A*24:02</td><td class="num">0.01</td><td class="num">0.0556</td><td class="num">0.0324</td><td class="num ok">0.0556</td></tr>
+        <tr><td class="pep">GYATSIVTF</td><td class="num">139</td><td>A*24:02</td><td class="num">0.01</td><td class="num">0.1236</td><td class="num">0.0480</td><td class="num ok">0.1236</td></tr>
+        <tr><td class="pep">SLLGKQASV</td><td class="num">507</td><td>A*02:01</td><td class="num">0.03</td><td class="num">0.1297</td><td class="num">0.0065</td><td class="num ok">0.1297</td></tr>
+        <tr><td class="pep">VYLSNTLTV</td><td class="num">494</td><td>A*24:02</td><td class="num">0.04</td><td class="num">0.1414</td><td class="num">0.0712</td><td class="num ok">0.1414</td></tr>
+        <tr><td class="pep">RLFDPAPLV</td><td class="num">103</td><td>A*02:01</td><td class="num">0.01</td><td class="num">0.0539</td><td class="num">0.1785</td><td class="num ok">0.1785</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="termcap">First 7 of 27, ranked by the <strong>worst</strong> rank any tool gave them,
+  which is the conservative way to read a consensus.</p>
+
+  <h3>Where class I meets class II</h3>
+  <p>FhaC is extracellular, so class II is its natural route. A stretch of protein that can feed
+  both a CD8 and a CD4 response is a better bet than either alone. Crossing the two tables gives
+  four such regions.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Region</th><th>Class II peptide</th><th>DRB1</th><th>%rank</th><th>Class I peptides inside</th></tr></thead>
+      <tbody>
+        <tr><td class="num">108&ndash;122</td><td class="pep">APLVQDYLNRPLDNE</td><td>*15:01</td><td class="num ok">0.04</td><td class="pep">RLFDPAPLV</td></tr>
+        <tr><td class="num">141&ndash;155</td><td class="pep">ATSIVTFVPPGVVDG</td><td>*15:01</td><td class="num ok">0.09</td><td class="pep">GYATSIVTF, YATSIVTFV, GVVDGVLKL</td></tr>
+        <tr><td class="num">327&ndash;341</td><td class="pep">RYGQYQSAGNSRSFG</td><td>*04:01</td><td class="num ok">0.19</td><td class="pep">QYQSAGNSRSF</td></tr>
+        <tr><td class="num">353&ndash;367</td><td class="pep">RSQFSVYGGLKLRQN</td><td>*15:01</td><td class="num ok">0.45</td><td class="pep">LYRDTRSQF</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>This is the most useful result here and it is on no slide.</strong> Residues 103 to
+    122 carry <code>RLFDPAPLV</code> for HLA-A*02:01 and <code>APLVQDYLNRPLDNE</code> for
+    DRB1*15:01, the best class II hit in the whole protein. That region sits inside the POTRA
+    domain. Still a hypothesis, but one supported from two independent directions at once.</p>
+  </div>
 
   <div class="callout">
     <p><strong>Compare on the rank, never on the raw score.</strong> The four scales do not match.
     MixMHCpred runs negative, MHCflurry presentation runs 0 to 1, NetMHCpan has two scores at once.
     The percentile rank is the only column that means the same thing in all four tables, which is
     why it is the one the comparison script merges on.</p>
-    <p>Class II matters more than it looks for this antigen. FhaC is an extracellular protein, so
-    its natural route is endocytosis and presentation to CD4 T cells, and NetMHCIIpan is the tool
-    that answers that question.</p>
+    <p><strong>No licence was needed for any of this.</strong> NetMHCpan and NetMHCIIpan require an
+    academic licence from DTU and a manual install, which would stop a workshop before it starts.
+    IEDB runs the same tools on its own cluster behind a public API, so the module sends FhaC there
+    and parses the answer. These are the real tools, not a stand in. The only thing the API does
+    not return is the binding affinity output, which is why those two columns are blank.</p>
   </div>
 </section>
 
@@ -548,8 +613,11 @@ DATNRFRPG  AASAQDDKII  ASSYSFGGAPAQETQY             0.357
     </figure>
   </div>
 
-  <h3>Can either tool take FhaC? They differ</h3>
-  <p>It is tempting to read slide 24 as "both of these are for tumours, so neither works for a
+  <h3>Can either tool take FhaC? They differ <span class="pending">discussion, not an exercise</span></h3>
+  <p>Neither pVACtools nor TIDE is run in this module. The chain above reproduces what pVACbind
+  does, by hand and with no install, which is enough to make the point. This comparison is here for
+  the discussion on slide 24.</p>
+  <p>It is tempting to read that slide as "both of these are for tumours, so neither works for a
   pathogen". That is right for one of them and wrong for the other, and the difference is worth
   knowing.</p>
 
@@ -570,6 +638,9 @@ DATNRFRPG  AASAQDDKII  ASSYSFGGAPAQETQY             0.357
   pVACtools also ships <code>pVACbind</code>, whose input is a FASTA. Feed it the FhaC peptides and
   an allele list and it runs the same filtering and ranking machinery. That is exactly what
   exercise 14 reproduces by hand, which is why it is called a pVACtools style chain.</p>
+  <p class="dim" style="font-size:.86rem">One honest caveat for the room. pVACbind accepts any
+  FASTA, so it is mechanically applicable to a bacterial antigen, but the published validation of
+  pVACtools is on tumour neoantigens. Applicable is not the same as validated for this use.</p>
 
   <p><strong>TIDE no, and not for a licensing or practical reason.</strong> Its input is an
   expression matrix of a tumour and its output is one score per sample. There is no slot for a
@@ -605,10 +676,13 @@ DATNRFRPG  AASAQDDKII  ASSYSFGGAPAQETQY             0.357
   its 17 peptides.</p>
 
   <div class="callout">
-    <p><strong>One caveat to carry into the room.</strong> FhaC reaches the immune system as an
-    extracellular protein, so its natural route is endocytosis and MHC class II presentation to CD4
-    T cells. Every class I result on this page is, strictly, a hypothesis about cross presentation.
-    That is why NetMHCIIpan is not optional for this antigen.</p>
+    <p><strong>If one thing survives the session, make it this.</strong> Residues 103 to 122 of
+    FhaC carry a peptide that three independent class I tools all call a strong binder, and the
+    best class II binder in the whole protein, for different HLA molecules. Nothing on the slides
+    asked for that comparison. It came out of putting two tables side by side.</p>
+    <p>FhaC reaches the immune system as an extracellular protein, so its natural route is class II
+    and CD4. Every class I result here is strictly a hypothesis about cross presentation, which is
+    why that dual region matters more than any class I ranking on its own.</p>
   </div>
 
   <p>The next module takes the same protein and asks what the structure adds: the shape of the
