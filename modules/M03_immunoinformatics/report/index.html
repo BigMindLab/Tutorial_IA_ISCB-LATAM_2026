@@ -241,30 +241,48 @@ fhaC   periplasm   584   584</pre>
   <p class="termcap">DeepTMHMM labels every residue, so it calls the signal peptide too, ending at
   32. UniProt annotates the cleavage at 30. Two methods, two residues apart.</p>
 
-  <h3>SignalP 6.0 <span class="pending">awaiting the team run</span></h3>
-  <p>SignalP would add one thing the two sources above cannot: the signal peptide <em>type</em>,
-  one of the five on slide 18, plus the per residue n, h and c region probabilities. It needs a DTU
-  academic licence, so it was not run here. This is the exact shape of its output, ready for the
-  numbers to drop in.</p>
+  <h3>SignalP 6.0, and why the headline is not the answer</h3>
+  <p>SignalP was run under the team's DTU licence. Its headline reads <em>Signal Peptide
+  (Sec/SPI)</em>, which looks settled. The numbers underneath say otherwise.</p>
 
   <div class="schema">
-    <div class="title">results/signalp6_summary.csv <span>9 columns</span></div>
-<pre><span class="head">id        prediction  OTHER   SP(Sec/SPI)  LIPO(Sec/SPII)  TAT(Tat/SPI)  TATLIPO  PILIN  CS Position</span>
-<span class="row">fhaC      ?           ?       ?            ?               ?             ?        ?      ?</span></pre>
-  </div>
-  <p class="termcap">Two columns carry the answer. <code>prediction</code> gives the signal peptide
-  type, one of the five on slide 18. <code>CS Position</code> gives the cleavage site, which is the
-  number that decides which peptides exist in the mature protein.</p>
-
-  <div class="term">
-    <div class="cmd">python3 solutions/ex7_signalp6.py data/fhaC.fasta other</div>
-<pre><span class="note">organism is 'other', not 'eukarya'. SignalP 6.0 only separates
-eukaryotes from everything else, and B. pertussis is Gram negative.</span></pre>
+    <div class="title">signalp6_fhaC_prediction_results.txt <span>real output</span></div>
+<pre><span class="head">ID    Prediction  OTHER   SP(Sec/SPI)  LIPO(Sec/SPII)  TAT  TATLIPO  PILIN  CS Position</span>
+<span class="row">fhaC  SP          0.0017  <span class="hl">0.5683</span>       <span class="hl">0.4285</span>          ...  ...      ...    CS pos: 32-33. Pr: 0.469177</span></pre>
   </div>
 
-  <p>In the meantime two independent sources already bracket the same boundary. UniProt annotates
-  the cleavage at residue <strong>30</strong> and DeepTMHMM predicts <strong>32</strong>. When the
-  SignalP number arrives it goes straight into this comparison.</p>
+  <div class="metrics">
+    <div class="metric"><span class="label">Sec/SPI, standard signal peptide</span><span class="value">0.57</span></div>
+    <div class="metric"><span class="label">Sec/SPII, lipoprotein signal peptide</span><span class="value">0.43</span></div>
+    <div class="metric lo"><span class="label">Confidence in the cleavage site</span><span class="value">0.47</span></div>
+  </div>
+
+  <p>A gap of 0.14 between the top two types is close to a coin flip, and the cleavage site
+  probability sits <strong>below 0.5</strong>. Copying the bold headline would report a certainty
+  the model does not have.</p>
+
+  <div class="callout">
+    <p><strong>Why SignalP hesitates, and it is in the sequence.</strong> There is exactly one
+    cysteine in the whole signal region, at position 29. A lipoprotein signal peptide is cut
+    immediately <em>before</em> a conserved cysteine, which is then lipidated and anchors the
+    protein to the membrane. That single residue is what makes the Sec/SPII hypothesis plausible.</p>
+    <p>And the two hypotheses cut in different places, so they do not merely disagree about a label.
+    They disagree about which peptides exist in the mature protein at all.</p>
+  </div>
+
+  <h3>Three sources, one boundary</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Source</th><th>Kind</th><th>Cleavage site</th></tr></thead>
+      <tbody>
+        <tr><td>SignalP 6.0</td><td class="dim">prediction</td><td class="num">32</td></tr>
+        <tr><td>DeepTMHMM</td><td class="dim">prediction</td><td class="num">32</td></tr>
+        <tr><td>UniProt P35077</td><td class="dim">curated annotation</td><td class="num">30</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="termcap">The two predictors agree with each other exactly and differ from the curated
+  annotation by two residues. Which one to believe is the discussion, and there is no clean answer.</p>
 
   <h3>DeepTMHMM</h3>
 

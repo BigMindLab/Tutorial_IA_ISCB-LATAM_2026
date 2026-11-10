@@ -27,14 +27,35 @@ wrote results/topology_reference.csv (584 rows)
   Two independent predictions of the same boundary is already
   something to compare, before SignalP is even installed.
 
-  SignalP output not supplied, so only the reference is shown.
-  UniProt annotates a signal peptide at 1-30.
-  Run ex7_signalp6.py once SignalP 6.0 is installed, then pass
-  --signalp results/signalp6/prediction_results.txt to compare.
+  SignalP prediction : SP
+  SignalP cleavage   : 32
+  UniProt cleavage   : 30
+  agreement          : off by +2 residues
 
-  Predict before you run it: fhaC is from a Gram negative bacterium,
-  so the organism argument is 'other', not 'eukarya'. Which of the five
-  signal peptide types on slide 18 do you expect, and why?
+  Likelihood per type, which the headline does not show:
+    Other, no signal peptide               0.0017  
+    Sec/SPI, standard signal peptide       0.5683  #######################
+    Sec/SPII, LIPOPROTEIN signal peptide   0.4285  #################
+    Tat/SPI                                0.0005  
+    Tat/SPII                               0.0005  
+    Sec/SPIII, pilin like                  0.0004  
+
+  Top two: Sec/SPI, standard signal peptide at 0.5683 and Sec/SPII, LIPOPROTEIN signal peptide at 0.4285, a gap of 0.1398.
+  THAT IS CLOSE. SignalP prints one answer in bold and the numbers
+  underneath say it is nearly a coin flip. Reporting only the
+  headline would hide a real ambiguity.
+
+  Cysteines in the first 60 residues: 29
+  Position 29 sits right at the predicted cleavage site.
+  A lipoprotein signal peptide is cut immediately BEFORE a
+  conserved cysteine, which is then lipidated and anchors the
+  protein to the membrane. That cysteine is why the Sec/SPII
+  score is so high, and the two hypotheses differ in where they
+  cut, so they disagree about which peptides exist at all.
+
+  Discuss: a cleavage site off by one or two residues changes which
+  peptides exist at the N terminus of the mature protein. Check whether
+  any of your class I candidates straddle that boundary.
 
 [question 2] Is it a membrane protein, and which way round? (slide 19)
   UniProt annotates 16 transmembrane beta strands.

@@ -245,6 +245,56 @@ def main():
             delta = pred_cs - ref_cs
             verdict = "exact match" if delta == 0 else "off by %+d residues" % delta
             print("  agreement          : %s" % verdict)
+
+        # The headline hides the interesting part. Read the likelihoods.
+        types = [
+            ("Other, no signal peptide", "OTHER"),
+            ("Sec/SPI, standard signal peptide", "SP_Sec_SPI"),
+            ("Sec/SPII, LIPOPROTEIN signal peptide", "LIPO_Sec_SPII"),
+            ("Tat/SPI", "TAT_Tat_SPI"),
+            ("Tat/SPII", "TATLIPO_Tat_SPII"),
+            ("Sec/SPIII, pilin like", "PILIN_Sec_SPIII"),
+        ]
+        values = []
+        print("\n  Likelihood per type, which the headline does not show:")
+        for label, key in types:
+            try:
+                v = float(row.get(key, "nan"))
+            except (TypeError, ValueError):
+                continue
+            values.append((v, label))
+            bar = "#" * int(round(v * 40))
+            print("    %-38s %.4f  %s" % (label, v, bar))
+
+        values.sort(reverse=True)
+        if len(values) >= 2:
+            (top_v, top_l), (second_v, second_l) = values[0], values[1]
+            gap = top_v - second_v
+            print("\n  Top two: %s at %.4f and %s at %.4f, a gap of %.4f."
+                  % (top_l, top_v, second_l, second_v, gap))
+            if gap < 0.25:
+                print("  THAT IS CLOSE. SignalP prints one answer in bold and the numbers")
+                print("  underneath say it is nearly a coin flip. Reporting only the")
+                print("  headline would hide a real ambiguity.")
+
+        # A lipoprotein signal peptide is cleaved immediately before a
+        # conserved cysteine, which then gets lipidated. If one sits right
+        # around the predicted cleavage site, that is why the call is close.
+        cys = [i + 1 for i, aa in enumerate(seq[:60]) if aa == "C"]
+        if cys:
+            print("\n  Cysteines in the first 60 residues: %s"
+                  % ", ".join(str(p) for p in cys))
+            near = [p for p in cys if pred_cs and abs(p - pred_cs) <= 6]
+            if near:
+                print("  Position %s sits right at the predicted cleavage site."
+                      % ", ".join(str(p) for p in near))
+                print("  A lipoprotein signal peptide is cut immediately BEFORE a")
+                print("  conserved cysteine, which is then lipidated and anchors the")
+                print("  protein to the membrane. That cysteine is why the Sec/SPII")
+                print("  score is so high, and the two hypotheses differ in where they")
+                print("  cut, so they disagree about which peptides exist at all.")
+
+        if pred_cs:
             print("\n  Discuss: a cleavage site off by one or two residues changes which")
             print("  peptides exist at the N terminus of the mature protein. Check whether")
             print("  any of your class I candidates straddle that boundary.")
