@@ -141,6 +141,29 @@
   .term .note { color: #9a90b8; }
   .termcap { font-size: .82rem; color: var(--muted); margin: -8px 0 22px; }
 
+  .schema {
+    border: 1px solid var(--line); border-radius: 8px; margin: 16px 0 6px;
+    background: var(--surface); overflow: hidden;
+  }
+  .schema .title {
+    font-family: var(--mono); font-size: .76rem; padding: 8px 13px;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+    color: var(--accent); font-weight: 700; letter-spacing: .03em;
+  }
+  .schema .title span { color: var(--muted); font-weight: 400; float: right; }
+  .schema pre {
+    margin: 0; padding: 11px 13px; font-family: var(--mono);
+    font-size: .73rem; line-height: 1.5; overflow-x: auto;
+  }
+  .schema .head { color: var(--accent); font-weight: 700; }
+  .schema .row { color: var(--muted); }
+  .pending {
+    display: inline-block; font-family: var(--mono); font-size: .68rem;
+    letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px;
+    border-radius: 99px; background: var(--warm); color: #fff; vertical-align: middle;
+    margin-left: 8px;
+  }
+
   footer { padding-block: 36px; color: var(--muted); font-size: .86rem; }
   footer a { color: var(--accent); }
   code { font-family: var(--mono); font-size: .9em; background: var(--surface); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--line); }
@@ -194,6 +217,31 @@ results/ex14_prioritization.png  the funnel and the ranking</pre>
   <p class="lead">Running SignalP and DeepTMHMM is easy. Knowing whether to believe them needs
   something to compare against. The reference here is the curated UniProt annotation of P35077,
   much of it derived from a solved structure.</p>
+
+  <h3>SignalP 6.0 <span class="pending">awaiting the team run</span></h3>
+  <p>SignalP needs a DTU academic licence, so it was not run here. This is the exact shape of its
+  output, ready for the numbers to drop in.</p>
+
+  <div class="schema">
+    <div class="title">results/signalp6_summary.csv <span>9 columns</span></div>
+<pre><span class="head">id        prediction  OTHER   SP(Sec/SPI)  LIPO(Sec/SPII)  TAT(Tat/SPI)  TATLIPO  PILIN  CS Position</span>
+<span class="row">fhaC      ?           ?       ?            ?               ?             ?        ?      ?</span></pre>
+  </div>
+  <p class="termcap">Two columns carry the answer. <code>prediction</code> gives the signal peptide
+  type, one of the five on slide 18. <code>CS Position</code> gives the cleavage site, which is the
+  number that decides which peptides exist in the mature protein.</p>
+
+  <div class="term">
+    <div class="cmd">python3 solutions/ex7_signalp6.py data/fhaC.fasta other</div>
+<pre><span class="note">organism is 'other', not 'eukarya'. SignalP 6.0 only separates
+eukaryotes from everything else, and B. pertussis is Gram negative.</span></pre>
+  </div>
+
+  <p>In the meantime two independent sources already bracket the same boundary. UniProt annotates
+  the cleavage at residue <strong>30</strong> and DeepTMHMM predicts <strong>32</strong>. When the
+  SignalP number arrives it goes straight into this comparison.</p>
+
+  <h3>DeepTMHMM</h3>
 
   <div class="metrics">
     <div class="metric hi"><span class="label">Beta strands predicted by DeepTMHMM</span><span class="value">16</span></div>
@@ -283,13 +331,52 @@ results/ex14_prioritization.png  the funnel and the ranking</pre>
   <p class="termcap">Read the %rank column, not the nM value. Slide 21 sets strong binder below
   0.5 and weak binder below 2 for class I.</p>
 
+  <h3>What each tool writes</h3>
+  <p>Four tools, four table shapes. Empty templates with these exact headers live in
+  <code>data/templates/</code>, so a run done on another machine can be pasted in by hand.</p>
+
+  <div class="schema">
+    <div class="title">mixmhcpred_class_I.csv <span>real rows from fhaC</span></div>
+<pre><span class="head">start,length,peptide,allele,score,rank,call</span>
+<span class="row">1,8,MTDATNRF,HLA-A*02:01,-3.578068,49.6938,NB
+1,8,MTDATNRF,HLA-A*24:02,-3.611811,27.2604,NB
+1,8,MTDATNRF,HLA-B*07:02,-4.104978,50.6827,NB</span></pre>
+  </div>
+  <p class="termcap">The negative <code>score</code> is normal for MixMHCpred, not an error.</p>
+
+  <div class="schema">
+    <div class="title">mhcflurry_class_I.csv <span>real rows from fhaC</span></div>
+<pre><span class="head">start,length,peptide,allele,affinity_nM,affinity_percentile,processing_score,presentation_score,presentation_percentile,call</span>
+<span class="row">9,9,RPGLVGRAL,HLA-B*07:02,13.54,0.002352,0.779360,0.988729,0.004721,SB
+465,9,LLNSYQITV,HLA-A*02:01,11.68,0.037398,0.489238,0.974643,0.017651,SB</span></pre>
+  </div>
+  <p class="termcap">The only one of the four with a <code>processing_score</code>, which is what
+  happens to the peptide before it ever reaches the groove.</p>
+
+  <div class="schema">
+    <div class="title">netmhcpan_class_I.csv <span class="pending">awaiting the team run</span></div>
+<pre><span class="head">start,length,peptide,allele,score_EL,rank_EL,score_BA,rank_BA,affinity_nM,call</span>
+<span class="row">9,9,RPGLVGRAL,HLA-B*07:02,?,?,?,?,?,?</span></pre>
+  </div>
+  <p class="termcap">Two separate scores, and that split is the point of slide 21. BA was trained on
+  measured affinities, EL on peptides actually eluted from cells. Read <code>rank_EL</code>.</p>
+
+  <div class="schema">
+    <div class="title">netmhciipan_class_II.csv <span class="pending">awaiting the team run</span></div>
+<pre><span class="head">start,peptide,allele,score_EL,rank_EL,call</span>
+<span class="row">103,RLFDPAPLVQDYLNR,DRB1_0401,?,?,?</span></pre>
+  </div>
+  <p class="termcap">No <code>length</code> column, because every peptide is a 15-mer scored through
+  a 9-mer core. And the thresholds change: strong binder below 2, not below 0.5.</p>
+
   <div class="callout">
-    <p><strong>Pending from the team.</strong> NetMHCpan and NetMHCIIpan results are not on this
-    page yet, because those tools need a DTU academic licence and were not run here. The wrappers
-    are ready and the commands are in the runbook. Once the output CSVs exist they drop straight
-    into the comparison above.</p>
-    <p>Class II matters more than it looks for this antigen. fhaC is an extracellular protein, so
-    its natural route is endocytosis and presentation to CD4 T cells.</p>
+    <p><strong>Compare on the rank, never on the raw score.</strong> The four scales do not match.
+    MixMHCpred runs negative, MHCflurry presentation runs 0 to 1, NetMHCpan has two scores at once.
+    The percentile rank is the only column that means the same thing in all four tables, which is
+    why it is the one the comparison script merges on.</p>
+    <p>Class II matters more than it looks for this antigen. FhaC is an extracellular protein, so
+    its natural route is endocytosis and presentation to CD4 T cells, and NetMHCIIpan is the tool
+    that answers that question.</p>
   </div>
 </section>
 
