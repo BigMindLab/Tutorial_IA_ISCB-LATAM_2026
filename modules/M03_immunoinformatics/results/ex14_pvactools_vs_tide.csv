@@ -1,0 +1,7 @@
+aspect,pVACbind (what this rebuilds),pVACseq (the slide figure),TIDE
+unit of analysis,peptide by allele,peptide by allele,"one tumour, one sample"
+input,a FASTA plus an allele list,somatic VCF plus patient HLA,RNA-seq or NanoString expression
+output,ranked epitope list,ranked neoantigen list,a checkpoint response score
+needs HLA?,yes,yes,no
+needs the antigen?,yes,yes,no
+works for fhaC?,yes,"no, there is no tumour here","no, and no input slot for a sequence"

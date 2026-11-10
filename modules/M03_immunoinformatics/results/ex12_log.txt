@@ -1,0 +1,123 @@
+==============================================================================
+EXERCISE 12 - Immunogenicity (slide 22)
+==============================================================================
+
+  TWO DATASETS, DO NOT CONFUSE THEM
+  ---------------------------------
+  [TRAINING]  9,055 peptides from IEDB, published with DeepImmuno.
+              Needed because nobody has ever measured which fhaC
+              peptides are immunogenic, so fhaC carries no labels to
+              learn from. Slide 22 cites this same dataset.
+              Used in blocks 12.2, 12.3 and 12.4.
+
+  [fhaC]      YOUR protein, the case study. 584 residues, which give
+              576 overlapping 9-mers. It is never used for training,
+              only for prediction.
+              Used in block 12.5, and that is the result you keep.
+
+  Every block below is tagged so you always know which one you are
+  looking at.
+
+[12.1] DeepImmuno style encoding
+      PCA matrix: 21 amino acids x 12 components
+      paratope table: 62 alleles, pseudo sequence of 46 residues
+
+      GILGFVFTL becomes a (10, 12) matrix (10 positions x 12 components)
+      first 3 positions, first 5 components:
+      PC1     PC2     PC3     PC4     PC5
+G  15.867   2.156  28.060  19.882  -4.918
+I  -8.998 -13.358  -4.077   6.083   2.504
+L -10.272 -10.797  -2.366   3.527  11.947
+
+      Note the peptide has 9 residues and the matrix has 10 rows. Row 10
+      is X padding, which is how DeepImmuno feeds 9-mers and 10-mers
+      through the same input.
+      HLA-A*0201 becomes a (46, 12) matrix (46 paratope residues x 12 components)
+      figure written to results/ex12_1_encoding.png
+
+[12.2] [TRAINING] Training data (IEDB, via the DeepImmuno repository)
+      filtered 9055 rows down to 8483 (allele with paratope, standard residues)
+      8483 pairs, 38 alleles, lengths [np.int64(9), np.int64(10)]
+      positives=3730  negatives=4753
+      Label: 'Negative' maps to 0, every 'Positive*' variant maps to 1
+      grouped split gives train=6355 and test=2128
+      Grouping by peptide avoids inflating the AUC with the same
+      peptide appearing on both sides of the split.
+
+      Training DeepImmuno-CNN ...
+      epoch 10/40  loss=0.4812  val AUC=0.852
+      epoch 20/40  loss=0.4485  val AUC=0.832
+      epoch 30/40  loss=0.2380  val AUC=0.819
+      epoch 40/40  loss=0.1441  val AUC=0.819
+      CNN gives AUC=0.853  AUPRC=0.805  (prevalence baseline 0.450)
+
+[12.3] [TRAINING] PRIME 2.0 and its 28 input vector
+      TCR facing positions in a 9-mer: [1, 3, 4, 5, 6, 7, 8]
+      P2 and the last position are left out, they anchor into the groove
+      computing presentation scores with MHCflurry 2.0 ...
+      PRIME style MLP, 28 inputs, presentation score from MHCflurry 2.0, -log10(percentile)
+      gives AUC=0.689  AUPRC=0.633
+
+[12.4] [TRAINING] THE POINT: presentation is not immunogenicity
+      AUC from the presentation score alone : 0.582
+      AUC from the immunogenicity CNN       : 0.853
+      correlation between the two scores    : r=0.13
+
+      Read that carefully. The presentation score does separate the
+      classes a little, it is above 0.5, but far less than a model
+      trained on the right question. And the two scores barely
+      correlate, meaning they order the peptides by different
+      criteria. That is the slide phrase, 'a strong binder is not
+      necessarily immunogenic', turned into two numbers.
+
+      Beware the easy shortcut. Of the 20 best presented peptides in
+      the test set, 18/20 are immunogenic in IEDB.
+      That looks like presentation is enough, but it is an artefact of
+      SELECTION BIAS. Peptides reach IEDB because somebody already
+      suspected they would bind, not by sampling the proteome at random.
+      The overall AUC of the presentation score stays low (0.582) even
+      though the head of the ranking looks clean.
+      Methodological moral: look at the whole curve, not the top k.
+      figure written to results/ex12_4_presentation_vs_immunogenicity.png
+
+[12.5] [fhaC] Apply the model to the case study
+      From here on, everything is YOUR protein. No training happens
+      below this line.
+      fhaC
+      length: 584 residues
+      576 overlapping 9-mers (584 residues - 9 + 1 = 576)
+      A sliding window always yields fewer peptides than residues.
+      That is why exercise 11 reports 584 rows, one per residue, and
+      this one reports 576, one per peptide. Same protein.
+      model saved to data/precomputed/ex12_immunogenicity_cnn.pt
+      (exercise 14 loads it instead of retraining)
+
+      Top 10 fhaC peptides for HLA-A*0201 by predicted immunogenicity:
+ start  end   peptide  immunogenicity_score        HLA
+   158  166 KLKVEWGRI              0.936451 HLA-A*0201
+    13   21 VGRALVRAG              0.924846 HLA-A*0201
+     8   16 FRPGLVGRA              0.923842 HLA-A*0201
+    17   25 LVRAGLLFA              0.920698 HLA-A*0201
+    16   24 ALVRAGLLF              0.907515 HLA-A*0201
+   567  575 GGAPRAPVW              0.900130 HLA-A*0201
+   543  551 AGVRFDLPY              0.899028 HLA-A*0201
+    55   63 RDIERALTR              0.896595 HLA-A*0201
+   234  242 QLQRRALPR              0.892912 HLA-A*0201
+    15   23 RALVRAGLL              0.891404 HLA-A*0201
+
+      CAREFUL: this ranking ignores whether the peptide binds the HLA at
+      all. Exercise 14 combines it with binding before deciding anything.
+
+==============================================================================
+QUESTIONS TO DISCUSS
+==============================================================================
+  1. The AUC drops when the split is grouped by peptide. Why would an
+     ordinary random split give a prettier and more dishonest number?
+  2. PRIME leaves P2 and the last position out of the frequency vector.
+     What biological assumption is behind that? Does it hold for class II?
+  3. The slide says DeepImmuno reports low precision on SARS-CoV-2.
+     Looking at the allele composition of the training set, why?
+  4. The 9,055 peptides come from IEDB assays. Does 'Negative' mean
+     'not immunogenic' or 'nobody detected a response in that assay'?
+  5. fhaC is an extracellular bacterial protein. Its natural route is
+     MHC class II. What does that make this whole class I exercise?

@@ -1,0 +1,86 @@
+==============================================================================
+EXERCISE 16 - Consensus across tools, and class I meeting class II
+==============================================================================
+
+[16.1] Strong binders per tool
+      NetMHCpan      71 strong binders
+      MHCflurry      60 strong binders
+      MixMHCpred     43 strong binders
+
+[16.2] Agreement
+      Strong binder in ALL 3 tools: 27 peptide and allele pairs
+
+      Pairwise overlap:
+        NetMHCpan    and MHCflurry      45
+        NetMHCpan    and MixMHCpred     31
+        MHCflurry    and MixMHCpred     27
+
+      Ranked by the WORST rank any tool gave them, which is the
+      conservative way to read a consensus:
+    peptide  start      allele  netmhcpan_rank  mhcflurry_rank  mixmhcpred_rank  worst_rank
+  RPGLVGRAL      9 HLA-B*07:02            0.01          0.0047           0.0303      0.0303
+  LLNSYQITV    465 HLA-A*02:01            0.03          0.0177           0.0358      0.0358
+  LYINAGLSF    576 HLA-A*24:02            0.01          0.0556           0.0324      0.0556
+  GYATSIVTF    139 HLA-A*24:02            0.01          0.1236           0.0480      0.1236
+  SLLGKQASV    507 HLA-A*02:01            0.03          0.1297           0.0065      0.1297
+  VYLSNTLTV    494 HLA-A*24:02            0.04          0.1414           0.0712      0.1414
+  RLFDPAPLV    103 HLA-A*02:01            0.01          0.0539           0.1785      0.1785
+  HYSDVTVGM    382 HLA-A*24:02            0.18          0.1496           0.1127      0.1800
+ APRAPVWLYI    569 HLA-B*07:02            0.14          0.0509           0.1845      0.1845
+  QPIQWASQL    448 HLA-B*07:02            0.06          0.1235           0.1852      0.1852
+  GVVDGVLKL    151 HLA-A*02:01            0.19          0.1956           0.1685      0.1956
+  LYRDTRSQF    348 HLA-A*24:02            0.16          0.2649           0.0566      0.2649
+  HPDARTIRM    530 HLA-B*07:02            0.04          0.0835           0.2653      0.2653
+QYQSAGNSRSF    330 HLA-A*24:02            0.11          0.3225           0.0661      0.3225
+  EYTVRGYNL    476 HLA-A*24:02            0.29          0.3336           0.0487      0.3336
+
+      -> results/consensus_class_I.csv
+
+[16.3] Does class I meet class II?
+      fhaC is extracellular, so class II is its natural route.
+      A region that feeds BOTH a CD8 and a CD4 response is a better
+      bet than either on its own. Checking the top class II hits:
+
+        APLVQDYLNRPLDNE  DRB1_1501  108-122 rank=0.04    overlaps class I: RLFDPAPLV
+        PAPLVQDYLNRPLDN  DRB1_1501  107-121 rank=0.08    overlaps class I: RLFDPAPLV
+        ATSIVTFVPPGVVDG  DRB1_1501  141-155 rank=0.09    overlaps class I: GYATSIVTF, GVVDGVLKL, YATSIVTFV
+        RYGQYQSAGNSRSFG  DRB1_0401  327-341 rank=0.19    overlaps class I: QYQSAGNSRSF
+        YGQYQSAGNSRSFGL  DRB1_0401  328-342 rank=0.2     overlaps class I: QYQSAGNSRSF
+        YATSIVTFVPPGVVD  DRB1_1501  140-154 rank=0.21    overlaps class I: GYATSIVTF, GVVDGVLKL, YATSIVTFV
+        PLVQDYLNRPLDNEQ  DRB1_1501  109-123 rank=0.33    overlaps class I: RLFDPAPLV
+        ENGRYKYNASVTAND  DRB1_0401  256-270 rank=0.37  
+        RSQFSVYGGLKLRQN  DRB1_1501  353-367 rank=0.45    overlaps class I: LYRDTRSQF
+        NGRYKYNASVTANDL  DRB1_0401  257-271 rank=0.47  
+        DPAPLVQDYLNRPLD  DRB1_1501  106-120 rank=0.51    overlaps class I: RLFDPAPLV
+        KQASVAPFVGADVGA  DRB1_1501  511-525 rank=0.51    overlaps class I: SLLGKQASV, KQASVAPFV
+
+      10 dual regions found:
+        residues 106-120, 1 class I peptide(s): RLFDPAPLV
+        residues 107-121, 1 class I peptide(s): RLFDPAPLV
+        residues 108-122, 1 class I peptide(s): RLFDPAPLV
+        residues 109-123, 1 class I peptide(s): RLFDPAPLV
+        residues 140-154, 3 class I peptide(s): GYATSIVTF, GVVDGVLKL, YATSIVTFV
+        residues 141-155, 3 class I peptide(s): GYATSIVTF, GVVDGVLKL, YATSIVTFV
+        residues 327-341, 1 class I peptide(s): QYQSAGNSRSF
+        residues 328-342, 1 class I peptide(s): QYQSAGNSRSF
+        residues 353-367, 1 class I peptide(s): LYRDTRSQF
+        residues 511-525, 2 class I peptide(s): SLLGKQASV, KQASVAPFV
+
+      -> results/class_I_II_overlap.csv
+
+      This is the most useful result in the module and it is not
+      on any slide. Still a hypothesis, but one supported from
+      two independent directions at once.
+
+==============================================================================
+QUESTIONS TO DISCUSS
+==============================================================================
+  1. Agreement between three tools is reassuring. Could they agree and
+     all be wrong together? What would they have in common that would
+     cause that?
+  2. We ranked by the WORST rank across tools. What changes if you rank
+     by the average instead, and which is the honest default?
+  3. A dual class I and class II region looks ideal. What experiment
+     would you run first to test it?
+  4. MixMHCpred is not a neural network. Does that make its agreement
+     with the other two worth more, or less?

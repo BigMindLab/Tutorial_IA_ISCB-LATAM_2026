@@ -1,0 +1,745 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>T Cell Epitopes in FhaC</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  /* One column report: each slide is a section, each section opens with the
+     claim from its orange box and closes with the number that proves it. */
+  :root {
+    --bg: #faf9fc;
+    --surface: #ffffff;
+    --line: #e2dced;
+    --fg: #1d1630;
+    --muted: #6b6382;
+    --accent: #4c1d95;
+    --warm: #d97706;
+    --good: #0f766e;
+    --bad: #b02a44;
+    --display: "Space Grotesk", "Trebuchet MS", sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "Courier New", monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141020; --surface: #1d1831; --line: #332a4d; --fg: #ece8f6;
+      --muted: #a79fbe; --accent: #c4a8ff; --warm: #f0a94c;
+      --good: #4dd4c0; --bad: #ff8099; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141020; --surface: #1d1831; --line: #332a4d; --fg: #ece8f6;
+    --muted: #a79fbe; --accent: #c4a8ff; --warm: #f0a94c;
+    --good: #4dd4c0; --bad: #ff8099; color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--body); line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 72px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+
+  header.top { padding-block: 48px 36px; border-bottom: 2px solid var(--accent); }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 700; font-size: clamp(1.9rem, 5vw, 2.9rem);
+    line-height: 1.12; margin: 0 0 14px; text-wrap: balance; letter-spacing: -.01em;
+  }
+  .sub { color: var(--muted); max-width: 64ch; margin: 0; font-size: 1.02rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 22px;
+    font-size: .84rem; color: var(--muted); font-family: var(--mono);
+  }
+
+  section { padding-block: 44px; border-bottom: 1px solid var(--line); }
+  h2 {
+    font-family: var(--display); font-weight: 700; font-size: 1.45rem;
+    margin: 0 0 6px; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--display); font-weight: 500; font-size: 1.08rem;
+    margin: 30px 0 8px;
+  }
+  .slide-tag {
+    font-family: var(--mono); font-size: .74rem; color: var(--warm);
+    letter-spacing: .08em; text-transform: uppercase; margin: 0 0 10px;
+  }
+  p { margin: 0 0 14px; max-width: 68ch; }
+  .lead { font-size: 1.05rem; }
+
+  blockquote {
+    margin: 22px 0; padding: 14px 20px; border-left: 3px solid var(--warm);
+    background: var(--surface); border-radius: 0 8px 8px 0;
+    font-style: italic;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: .8rem; color: var(--muted); margin-top: 8px; }
+
+  .figures { display: grid; gap: 14px; margin: 26px 0; }
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  figure img { display: block; width: 100%; border-radius: 4px; }
+  figcaption { font-size: .82rem; color: var(--muted); margin-top: 10px; }
+
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 24px 0; }
+  .metric { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .metric .label { font-size: .78rem; color: var(--muted); display: block; margin-bottom: 8px; min-height: 2.6em; }
+  .metric .value {
+    font-family: var(--display); font-weight: 700; font-size: 1.9rem;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .metric.hi .value { color: var(--good); }
+  .metric.lo .value { color: var(--bad); }
+
+  .tablewrap { overflow-x: auto; margin: 22px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .87rem; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  td.pep { font-family: var(--mono); font-weight: 700; letter-spacing: .04em; }
+  .dim { color: var(--muted); }
+  .warn { color: var(--bad); font-weight: 600; }
+  .ok { color: var(--good); font-weight: 600; }
+
+  .funnel { display: grid; gap: 7px; margin: 24px 0; }
+  .step { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; }
+  .bar {
+    background: var(--accent);
+    height: 30px; border-radius: 4px; display: flex; align-items: center;
+    padding-left: 11px; color: #fff; font-size: .8rem; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  :root[data-theme="dark"] .bar { color: #1a1430; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bar { color: #1a1430; } }
+  .step .count { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--line);
+    border-top: 3px solid var(--warm); border-radius: 8px; padding: 18px 20px; margin: 26px 0;
+  }
+  .callout strong { color: var(--warm); }
+
+  .term {
+    background: #140f22; color: #d9d2ec; border: 1px solid var(--line);
+    border-radius: 8px; margin: 18px 0; overflow: hidden;
+  }
+  .term .cmd {
+    font-family: var(--mono); font-size: .8rem; padding: 9px 14px;
+    background: #231b3d; color: #c4a8ff; border-bottom: 1px solid #332a4d;
+    white-space: nowrap; overflow-x: auto;
+  }
+  .term .cmd::before { content: "$ "; opacity: .55; }
+  .term pre {
+    margin: 0; padding: 13px 14px; font-family: var(--mono);
+    font-size: .76rem; line-height: 1.55; overflow-x: auto; color: #d9d2ec;
+  }
+  .term .hl { color: #7ee3cf; font-weight: 700; }
+  .term .note { color: #9a90b8; }
+  .termcap { font-size: .82rem; color: var(--muted); margin: -8px 0 22px; }
+
+  .schema {
+    border: 1px solid var(--line); border-radius: 8px; margin: 16px 0 6px;
+    background: var(--surface); overflow: hidden;
+  }
+  .schema .title {
+    font-family: var(--mono); font-size: .76rem; padding: 8px 13px;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+    color: var(--accent); font-weight: 700; letter-spacing: .03em;
+  }
+  .schema .title span { color: var(--muted); font-weight: 400; float: right; }
+  .schema pre {
+    margin: 0; padding: 11px 13px; font-family: var(--mono);
+    font-size: .73rem; line-height: 1.5; overflow-x: auto;
+  }
+  .schema .head { color: var(--accent); font-weight: 700; }
+  .schema .row { color: var(--muted); }
+  .pending {
+    display: inline-block; font-family: var(--mono); font-size: .68rem;
+    letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px;
+    border-radius: 99px; background: var(--warm); color: #fff; vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  footer { padding-block: 36px; color: var(--muted); font-size: .86rem; }
+  footer a { color: var(--accent); }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--line); }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">ISCB-LATAM 2026 &middot; Tutorial IP3 &middot; Module M03</p>
+  <h1>T cell epitopes in FhaC</h1>
+  <p class="sub">Results of the immunoinformatics practical, slides 18 to 24. Each section takes
+  one claim from the presentation and turns it into a number that can be reproduced. Case study:
+  FhaC of <em>Bordetella pertussis</em>, the same protein as the structural module.</p>
+  <div class="meta">
+    <span>UniProtKB P35077 &middot; 584 residues</span>
+    <span>576 nine-mers</span>
+    <span>5 class I alleles &middot; 2 class II</span>
+    <span>16 exercises</span>
+    <span>no licence required</span>
+  </div>
+</header>
+
+<section>
+  <p class="slide-tag">Before anything</p>
+  <h2>How to run all of this</h2>
+  <p class="lead">Three commands. Works on Linux, on macOS and in a GitHub Codespace opened from
+  the tutorial repository.</p>
+
+  <div class="term">
+    <div class="cmd">cd modules/M03_immunoinformatics</div>
+<pre><span class="note">installs packages, fetches the MHCflurry weights and the public datasets</span></pre>
+    <div class="cmd">bash setup.sh</div>
+<pre><span class="note">runs the whole workflow on fhaC, trains nothing, a few minutes</span></pre>
+    <div class="cmd">python3 solutions/ex00_fhaC_demo.py</div>
+<pre>results/topology_reference.csv   per residue reference for fhaC
+results/ex14_shortlist.csv       <span class="hl">the ranked candidate list</span>
+results/ex14_full_table.csv      every peptide and allele pair
+results/ex14_prioritization.png  the funnel and the ranking</pre>
+  </div>
+
+  <p>The licensed tools are the exception. NetMHCpan, NetMHCIIpan, SignalP 6.0 and DeepTMHMM need
+  an academic licence from DTU and a manual install, so they cannot run in a Codespace. Their
+  outputs for FhaC are committed in <code>data/precomputed</code>, so no exercise is blocked by a
+  missing tool. <code>RUNBOOK.md</code> in the repository gives the input, the command, the output
+  and the meaning for every step.</p>
+</section>
+
+<section>
+  <p class="slide-tag">Slides 18 and 19 &middot; Q1</p>
+  <h2>Where does FhaC go?</h2>
+  <blockquote>A signal peptide says where the protein goes, not whether it is antigenic.<cite>Orange box, slide 18</cite></blockquote>
+  <p class="lead">Running SignalP and DeepTMHMM is easy. Knowing whether to believe them needs
+  something to compare against. The reference here is the curated UniProt annotation of P35077,
+  much of it derived from a solved structure.</p>
+
+  <h3>The signal peptide, answered twice already</h3>
+  <p>The question on slide 18 is whether FhaC enters the secretory pathway. Two independent sources
+  already answer it, and they agree to within two residues.</p>
+
+  <div class="schema">
+    <div class="title">deeptmhmm_fhaC_TMRs.gff3 <span>real output, run under the DTU licence</span></div>
+<pre><span class="note">##gff-version 3
+# fhaC Length: 584
+# fhaC Number of predicted TMRs: 16</span>
+<span class="hl">fhaC   signal        1    32</span>
+fhaC   periplasm    33   242
+fhaC   Beta sheet  243   250
+fhaC   outside     251   259
+fhaC   Beta sheet  260   267
+fhaC   periplasm   268   277
+<span class="note">   ... 12 more beta sheets ...</span>
+fhaC   Beta sheet  575   583
+fhaC   periplasm   584   584</pre>
+  </div>
+  <p class="termcap">DeepTMHMM labels every residue, so it calls the signal peptide too, ending at
+  32. UniProt annotates the cleavage at 30. Two methods, two residues apart.</p>
+
+  <h3>SignalP 6.0, and why the headline is not the answer</h3>
+  <p>SignalP was run under the team's DTU licence. Its headline reads <em>Signal Peptide
+  (Sec/SPI)</em>, which looks settled. The numbers underneath say otherwise.</p>
+
+  <div class="schema">
+    <div class="title">signalp6_fhaC_prediction_results.txt <span>real output</span></div>
+<pre><span class="head">ID    Prediction  OTHER   SP(Sec/SPI)  LIPO(Sec/SPII)  TAT  TATLIPO  PILIN  CS Position</span>
+<span class="row">fhaC  SP          0.0017  <span class="hl">0.5683</span>       <span class="hl">0.4285</span>          ...  ...      ...    CS pos: 32-33. Pr: 0.469177</span></pre>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><span class="label">Sec/SPI, standard signal peptide</span><span class="value">0.57</span></div>
+    <div class="metric"><span class="label">Sec/SPII, lipoprotein signal peptide</span><span class="value">0.43</span></div>
+    <div class="metric lo"><span class="label">Confidence in the cleavage site</span><span class="value">0.47</span></div>
+  </div>
+
+  <p>A gap of 0.14 between the top two types is close to a coin flip, and the cleavage site
+  probability sits <strong>below 0.5</strong>. Copying the bold headline would report a certainty
+  the model does not have.</p>
+
+  <div class="callout">
+    <p><strong>Why SignalP hesitates, and it is in the sequence.</strong> There is exactly one
+    cysteine in the whole signal region, at position 29. A lipoprotein signal peptide is cut
+    immediately <em>before</em> a conserved cysteine, which is then lipidated and anchors the
+    protein to the membrane. That single residue is what makes the Sec/SPII hypothesis plausible.</p>
+    <p>And the two hypotheses cut in different places, so they do not merely disagree about a label.
+    They disagree about which peptides exist in the mature protein at all.</p>
+  </div>
+
+  <h3>Three sources, one boundary</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Source</th><th>Kind</th><th>Cleavage site</th></tr></thead>
+      <tbody>
+        <tr><td>SignalP 6.0</td><td class="dim">prediction</td><td class="num">32</td></tr>
+        <tr><td>DeepTMHMM</td><td class="dim">prediction</td><td class="num">32</td></tr>
+        <tr><td>UniProt P35077</td><td class="dim">curated annotation</td><td class="num">30</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="termcap">The two predictors agree with each other exactly and differ from the curated
+  annotation by two residues. Which one to believe is the discussion, and there is no clean answer.</p>
+
+  <h3>DeepTMHMM</h3>
+
+  <div class="metrics">
+    <div class="metric hi"><span class="label">Beta strands predicted by DeepTMHMM</span><span class="value">16</span></div>
+    <div class="metric hi"><span class="label">Beta strands annotated in UniProt</span><span class="value">16</span></div>
+    <div class="metric"><span class="label">Signal peptide boundary, difference</span><span class="value">2</span></div>
+  </div>
+
+  <p>DeepTMHMM was run offline on FhaC with the DTU academic package. It calls the protein a beta
+  barrel, predicts a signal peptide ending at residue 32 against the curated 30, and finds exactly
+  the same number of membrane strands.</p>
+
+  <h3>A number that looks bad and is not</h3>
+  <p>Raw per residue agreement is <strong>47.3 percent</strong>. Agreement on the question the
+  reference can actually answer, strand or not strand, is <strong>88.4 percent</strong>. The gap
+  exists because UniProt does not label inside versus outside, so every residue DeepTMHMM correctly
+  calls periplasm is scored as a mismatch. Two numbers, one comparison, and only one of them is
+  honest.</p>
+
+  <div class="term">
+    <div class="cmd">python3 solutions/ex11_topology_reference.py --deeptmhmm data/precomputed/deeptmhmm_fhaC.3line</div>
+<pre>[reference] UniProt P35077 curated annotation
+  signal peptide      1-30
+  domain              89-164  POTRA
+  transmembrane       16 beta strands, from 242 to 584
+
+[question 1] Does fhaC enter the secretory pathway?
+  DeepTMHMM also predicts a signal peptide, ending at 32.
+  UniProt annotates it ending at 30.
+  difference: +2 residues
+
+[question 2] Is it a membrane protein, and which way round?
+  label counts: {'S': 32, 'P': 272, 'B': 138, 'O': 142}
+  <span class="hl">predicted beta strands: 16</span>
+  <span class="hl">UniProt beta strands  : 16</span>
+  raw per residue agreement: 47.3%
+  <span class="note">That number looks poor, and it is misleading.</span>
+  <span class="hl">agreement on the strand or not strand question: 88.4%</span></pre>
+  </div>
+  <p class="termcap">Real output. The two agreement figures describe the same comparison, and
+  only the second one is honest.</p>
+
+  <div class="callout">
+    <p><strong>What this rules out.</strong> The first 30 residues are cleaved during secretion, so
+    22 of the 576 nine-mers never exist in the mature protein. That is the first filter of the whole
+    pipeline, and it comes from slide 18 rather than from any binding predictor.</p>
+  </div>
+</section>
+
+<section>
+  <p class="slide-tag">Slides 20 and 21 &middot; Q2</p>
+  <h2>Which peptides can MHC bind?</h2>
+  <blockquote>A predictor scores one peptide against one HLA allele. It does not model the
+  proteasome, TAP, or the endolysosomal route.<cite>Orange box, slide 20</cite></blockquote>
+  <p class="lead">Three independent tools were run over the same FhaC peptides: MHCflurry 2.0,
+  MixMHCpred 2.2 and PRIME 2.0. The agreement between them is the most convincing result in the
+  module.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Peptide</th><th>Position</th><th>Allele</th><th>Found by</th></tr></thead>
+      <tbody>
+        <tr><td class="pep">RPGLVGRAL</td><td class="num">9&ndash;17</td><td>B*07:02</td><td class="ok">MHCflurry and MixMHCpred</td></tr>
+        <tr><td class="pep">LLNSYQITV</td><td class="num">465&ndash;473</td><td>A*02:01</td><td class="ok">all three</td></tr>
+        <tr><td class="pep">RLFDPAPLV</td><td class="num">103&ndash;111</td><td>A*02:01</td><td class="ok">MHCflurry and the combined ranking</td></tr>
+        <tr><td class="pep">LYINAGLSF</td><td class="num">576&ndash;584</td><td>A*24:02</td><td class="ok">MHCflurry and MixMHCpred</td></tr>
+        <tr><td class="pep">YATSIVTFV</td><td class="num">140&ndash;148</td><td>A*02:01</td><td class="ok">MHCflurry and the combined ranking</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="dim" style="font-size:.84rem">Different architectures entirely. MixMHCpred is position
+  weight matrices from motif deconvolution, not a neural network, which is exactly the contrast
+  slide 21 draws.</p>
+
+  <div class="term">
+    <div class="cmd">python3 solutions/ex3_mhcflurry.py data/fhaC.fasta</div>
+<pre>wrote results/mhcflurry_class_I.csv (6906 rows)
+
+ start  length    peptide      allele  affinity_nM  affinity_percentile  call
+     9       9  RPGLVGRAL HLA-B*07:02        13.54                0.002  <span class="hl">SB</span>
+   465       9  LLNSYQITV HLA-A*02:01        11.68                0.037  <span class="hl">SB</span>
+   140       9  YATSIVTFV HLA-A*02:01        25.92                0.131  <span class="hl">SB</span>
+   103       9  RLFDPAPLV HLA-A*02:01        14.94                0.059  <span class="hl">SB</span>
+   576       9  LYINAGLSF HLA-A*24:02        31.68                0.045  <span class="hl">SB</span>
+
+<span class="note">calls across all 6906 rows:  SB 60   WB 179   NB 6667</span></pre>
+  </div>
+  <p class="termcap">Read the %rank column, not the nM value. Slide 21 sets strong binder below
+  0.5 and weak binder below 2 for class I.</p>
+
+  <h3>What each tool writes</h3>
+  <p>Four tools, four table shapes. Empty templates with these exact headers live in
+  <code>data/templates/</code>, so a run done on another machine can be pasted in by hand.</p>
+
+  <div class="schema">
+    <div class="title">mixmhcpred_class_I.csv <span>6906 rows, 43 SB, top 5 shown</span></div>
+<pre><span class="head">start,length,peptide,allele,score,rank,call</span>
+<span class="row">507,9,SLLGKQASV,HLA-A*02:01,0.612282,0.00649037,SB
+9,9,RPGLVGRAL,HLA-B*07:02,0.481255,0.030257,SB
+576,9,LYINAGLSF,HLA-A*24:02,0.493821,0.0324064,SB
+465,9,LLNSYQITV,HLA-A*02:01,0.259589,0.035834,SB
+139,9,GYATSIVTF,HLA-A*24:02,0.331617,0.0479964,SB</span></pre>
+  </div>
+  <p class="termcap">Sorted by <code>rank</code>, lower is better. Scores can also come out negative
+  for weak peptides, which is normal for MixMHCpred and not an error.</p>
+
+  <div class="schema">
+    <div class="title">mhcflurry_class_I.csv <span>6906 rows, 60 SB, top 5 shown</span></div>
+<pre><span class="head">start,length,peptide,allele,affinity_nM,affinity_percentile,processing_score,presentation_score,presentation_percentile,call</span>
+<span class="row">9,9,RPGLVGRAL,HLA-B*07:02,13.54,0.002352,0.779360,0.988729,0.004721,SB
+465,9,LLNSYQITV,HLA-A*02:01,11.68,0.037398,0.489238,0.974643,0.017651,SB
+140,9,YATSIVTFV,HLA-A*02:01,25.92,0.131372,0.571021,0.955700,0.043591,SB
+103,9,RLFDPAPLV,HLA-A*02:01,14.94,0.059435,0.346456,0.947909,0.053908,SB
+576,9,LYINAGLSF,HLA-A*24:02,31.68,0.044758,0.576872,0.946647,0.055635,SB</span></pre>
+  </div>
+  <p class="termcap">The only one of the four with a <code>processing_score</code>, which is what
+  happens to the peptide before it ever reaches the groove. Put the two tables side by side and
+  <code>RPGLVGRAL</code>, <code>LLNSYQITV</code> and <code>LYINAGLSF</code> appear in both.</p>
+
+  <div class="schema">
+    <div class="title">netmhcpan_class_I.csv <span>6906 rows, 71 SB, top 5 shown</span></div>
+<pre><span class="head">start,length,peptide,allele,score_EL,rank_EL,score_BA,rank_BA,affinity_nM,call</span>
+<span class="row">103,9,RLFDPAPLV,HLA-A*02:01,0.983,0.01,,,,SB
+139,9,GYATSIVTF,HLA-A*24:02,0.966,0.01,,,,SB
+576,9,LYINAGLSF,HLA-A*24:02,0.950,0.01,,,,SB
+9,9,RPGLVGRAL,HLA-B*07:02,0.993,0.01,,,,SB
+138,10,RGYATSIVTF,HLA-A*24:02,0.935,0.02,,,,SB</span></pre>
+  </div>
+  <p class="termcap">The two BA columns are empty on purpose. IEDB returns the eluted ligand output
+  and <code>rank_EL</code> is the column to rank on anyway, so leaving them blank beats filling
+  them with something they are not.</p>
+
+  <div class="schema">
+    <div class="title">netmhciipan_class_II.csv <span>1140 rows, 38 SB, top 5 shown</span></div>
+<pre><span class="head">start,peptide,allele,score_EL,rank_EL,call</span>
+<span class="row">108,APLVQDYLNRPLDNE,DRB1_1501,0.9440,0.04,SB
+107,PAPLVQDYLNRPLDN,DRB1_1501,0.9172,0.08,SB
+141,ATSIVTFVPPGVVDG,DRB1_1501,0.9138,0.09,SB
+327,RYGQYQSAGNSRSFG,DRB1_0401,0.9124,0.19,SB
+328,YGQYQSAGNSRSFGL,DRB1_0401,0.8976,0.20,SB</span></pre>
+  </div>
+  <p class="termcap">No <code>length</code> column, because every peptide is a 15-mer scored through
+  a 9-mer core, and the thresholds change: strong binder below 2, not 0.5. The first two rows are
+  the same region shifted by one residue, which is what an open ended groove does.</p>
+
+  <h3>Where all three class I tools agree</h3>
+  <p>Any single ranking is one model's opinion. These three are built differently, and MixMHCpred
+  is not even a neural network, so agreement between them carries real weight.</p>
+
+  <div class="metrics">
+    <div class="metric"><span class="label">Strong binders, NetMHCpan</span><span class="value">71</span></div>
+    <div class="metric"><span class="label">Strong binders, MHCflurry</span><span class="value">60</span></div>
+    <div class="metric"><span class="label">Strong binders, MixMHCpred</span><span class="value">43</span></div>
+    <div class="metric hi"><span class="label">Called SB by all three at once</span><span class="value">27</span></div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Peptide</th><th>Pos</th><th>HLA</th><th>NetMHCpan</th><th>MHCflurry</th><th>MixMHCpred</th><th>Worst</th></tr></thead>
+      <tbody>
+        <tr><td class="pep">RPGLVGRAL</td><td class="num">9</td><td>B*07:02</td><td class="num">0.01</td><td class="num">0.0047</td><td class="num">0.0303</td><td class="num ok">0.0303</td></tr>
+        <tr><td class="pep">LLNSYQITV</td><td class="num">465</td><td>A*02:01</td><td class="num">0.03</td><td class="num">0.0177</td><td class="num">0.0358</td><td class="num ok">0.0358</td></tr>
+        <tr><td class="pep">LYINAGLSF</td><td class="num">576</td><td>A*24:02</td><td class="num">0.01</td><td class="num">0.0556</td><td class="num">0.0324</td><td class="num ok">0.0556</td></tr>
+        <tr><td class="pep">GYATSIVTF</td><td class="num">139</td><td>A*24:02</td><td class="num">0.01</td><td class="num">0.1236</td><td class="num">0.0480</td><td class="num ok">0.1236</td></tr>
+        <tr><td class="pep">SLLGKQASV</td><td class="num">507</td><td>A*02:01</td><td class="num">0.03</td><td class="num">0.1297</td><td class="num">0.0065</td><td class="num ok">0.1297</td></tr>
+        <tr><td class="pep">VYLSNTLTV</td><td class="num">494</td><td>A*24:02</td><td class="num">0.04</td><td class="num">0.1414</td><td class="num">0.0712</td><td class="num ok">0.1414</td></tr>
+        <tr><td class="pep">RLFDPAPLV</td><td class="num">103</td><td>A*02:01</td><td class="num">0.01</td><td class="num">0.0539</td><td class="num">0.1785</td><td class="num ok">0.1785</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="termcap">First 7 of 27, ranked by the <strong>worst</strong> rank any tool gave them,
+  which is the conservative way to read a consensus.</p>
+
+  <h3>Where class I meets class II</h3>
+  <p>FhaC is extracellular, so class II is its natural route. A stretch of protein that can feed
+  both a CD8 and a CD4 response is a better bet than either alone. Crossing the two tables gives
+  four such regions.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Region</th><th>Class II peptide</th><th>DRB1</th><th>%rank</th><th>Class I peptides inside</th></tr></thead>
+      <tbody>
+        <tr><td class="num">108&ndash;122</td><td class="pep">APLVQDYLNRPLDNE</td><td>*15:01</td><td class="num ok">0.04</td><td class="pep">RLFDPAPLV</td></tr>
+        <tr><td class="num">141&ndash;155</td><td class="pep">ATSIVTFVPPGVVDG</td><td>*15:01</td><td class="num ok">0.09</td><td class="pep">GYATSIVTF, YATSIVTFV, GVVDGVLKL</td></tr>
+        <tr><td class="num">327&ndash;341</td><td class="pep">RYGQYQSAGNSRSFG</td><td>*04:01</td><td class="num ok">0.19</td><td class="pep">QYQSAGNSRSF</td></tr>
+        <tr><td class="num">353&ndash;367</td><td class="pep">RSQFSVYGGLKLRQN</td><td>*15:01</td><td class="num ok">0.45</td><td class="pep">LYRDTRSQF</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>This is the most useful result here and it is on no slide.</strong> Residues 103 to
+    122 carry <code>RLFDPAPLV</code> for HLA-A*02:01 and <code>APLVQDYLNRPLDNE</code> for
+    DRB1*15:01, the best class II hit in the whole protein. That region sits inside the POTRA
+    domain. Still a hypothesis, but one supported from two independent directions at once.</p>
+  </div>
+
+  <div class="callout">
+    <p><strong>Compare on the rank, never on the raw score.</strong> The four scales do not match.
+    MixMHCpred runs negative, MHCflurry presentation runs 0 to 1, NetMHCpan has two scores at once.
+    The percentile rank is the only column that means the same thing in all four tables, which is
+    why it is the one the comparison script merges on.</p>
+    <p><strong>No licence was needed for any of this.</strong> NetMHCpan and NetMHCIIpan require an
+    academic licence from DTU and a manual install, which would stop a workshop before it starts.
+    IEDB runs the same tools on its own cluster behind a public API, so the module sends FhaC there
+    and parses the answer. These are the real tools, not a stand in. The only thing the API does
+    not return is the binding affinity output, which is why those two columns are blank.</p>
+  </div>
+</section>
+
+<section>
+  <p class="slide-tag">Slide 22 &middot; Q3</p>
+  <h2>Can deep learning predict immunogenicity?</h2>
+  <blockquote>A strong binder is not necessarily immunogenic.<cite>Orange box, slide 22</cite></blockquote>
+  <p class="lead">DeepImmuno-CNN was reimplemented and trained on the 9,055 IEDB peptides the paper
+  uses. The split separates by peptide, so no peptide appears in both training and test.</p>
+
+  <div class="metrics">
+    <div class="metric hi"><span class="label">AUC of the immunogenicity model</span><span class="value">0.853</span></div>
+    <div class="metric lo"><span class="label">AUC of the presentation score alone</span><span class="value">0.582</span></div>
+    <div class="metric"><span class="label">Correlation between the two scores</span><span class="value">0.13</span></div>
+  </div>
+
+  <p>Two models ordering the same peptides almost independently. Knowing a peptide sits well in the
+  MHC groove says very little about whether it will wake a T cell.</p>
+
+  <div class="figures">
+    <figure>
+      <img src="fig-codificacion.png" alt="Two heatmaps. Left, the peptide GILGFVFTL as a matrix of 10 positions by 12 PCA components. Right, the HLA-A*02:01 paratope as 46 residues by 12 components.">
+      <figcaption>How DeepImmuno sees a peptide and HLA pair. Each residue becomes 12 PCA
+      components of 553 AAindex properties. Position 10 of the peptide is padding, which is how the
+      model feeds 9-mers and 10-mers through the same input.</figcaption>
+    </figure>
+    <figure>
+      <img src="fig-presentacion.png" alt="Left, overlapping histograms of model scores for immunogenic and non immunogenic peptides. Right, a scatter of presentation score against immunogenicity score with no clear trend.">
+      <figcaption>The cloud on the right has no slope. Two axes, two questions.</figcaption>
+    </figure>
+  </div>
+
+  <div class="callout">
+    <p><strong>The nuance worth the discussion.</strong> Of the 20 best presented peptides in the
+    test set, 18 are immunogenic. That seems to contradict the AUC of 0.582, and it does not. It is
+    selection bias: peptides reach IEDB because somebody already suspected they would bind, not by
+    sampling the proteome at random. Look at the whole curve, not the top k.</p>
+  </div>
+</section>
+
+<section>
+  <p class="slide-tag">Slide 23 &middot; Q4</p>
+  <h2>Does this TCR recognise this peptide?</h2>
+  <blockquote>The authors state the model can at present only be applied to the peptides in its
+  training data.<cite>Orange box, slide 23</cite></blockquote>
+  <p class="lead">NetTCR-2.0 reimplemented exactly as the slide draws it: BLOSUM50 zero padded to
+  30, convolutions with 16 filters at kernel sizes 1, 3, 5, 7 and 9, a 240 value vector, a dense
+  layer of 32, one sigmoid.</p>
+
+  <div class="metrics">
+    <div class="metric"><span class="label">Global AUC on the held out partition</span><span class="value">0.868</span></div>
+    <div class="metric hi"><span class="label">AUC on GILGFVFTL, peptide seen in training</span><span class="value">0.897</span></div>
+    <div class="metric lo"><span class="label">AUC on GILGFVFTL, peptide never seen</span><span class="value">0.569</span></div>
+  </div>
+
+  <p>That 0.868 is true and misleading. The whole dataset holds <strong>17 peptides</strong> and
+  three of them carry most of the data. Broken down per peptide, the model falls apart as soon as
+  there are few measured TCRs.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Peptide</th><th>Pairs in training</th><th>AUC</th></tr></thead>
+      <tbody>
+        <tr><td class="pep">GILGFVFTL</td><td class="num">9 714</td><td class="num ok">0.897</td></tr>
+        <tr><td class="pep">GLCTLVAML</td><td class="num">1 632</td><td class="num ok">0.859</td></tr>
+        <tr><td class="pep">NLVPMVATV</td><td class="num">1 440</td><td class="num">0.744</td></tr>
+        <tr><td class="pep">RTLNAWVKV</td><td class="num">114</td><td class="num">0.653</td></tr>
+        <tr><td class="pep">IMDQVPFSV</td><td class="num">102</td><td class="num warn">0.525</td></tr>
+        <tr><td class="pep">YLLEMLWRL</td><td class="num">54</td><td class="num warn">0.450</td></tr>
+        <tr><td class="pep">LLFGYPVYV</td><td class="num">294</td><td class="num warn">0.200</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="figures">
+    <figure>
+      <img src="fig-nettcr.png" alt="Left, a scatter of AUC against the number of training pairs per peptide on a log scale. Right, two bars comparing AUC 0.897 with the peptide in training and 0.569 without it.">
+      <figcaption>Leave one peptide out: train with no TCR against GILGFVFTL, then evaluate on
+      GILGFVFTL. From 0.897 to 0.569, with 0.500 as chance.</figcaption>
+    </figure>
+  </div>
+
+  <div class="term">
+    <div class="cmd">python3 solutions/ex13_nettcr.py</div>
+<pre>[13.5] [fhaC] What if we use it on an fhaC peptide?
+  peptide      CDR3a            CDR3b               score
+MTDATNRFR  AASAQDDKII  ASSYSFGGAPAQETQY             0.353
+MTDATNRFR  ALNQAGTALI   ASSLTTLAGVPYEQF             0.198
+TDATNRFRP  AASAQDDKII  ASSYSFGGAPAQETQY             0.355
+TDATNRFRP  ALNQAGTALI   ASSLTTLAGVPYEQF             0.201
+DATNRFRPG  AASAQDDKII  ASSYSFGGAPAQETQY             0.357
+
+  Standard deviation of the score ...
+    ... when the PEPTIDE changes, TCR fixed : <span class="hl">0.0060</span>
+    ... when the TCR changes, peptide fixed : <span class="hl">0.0780</span>
+
+  <span class="note">the model is scoring the CDR3 and ignoring the peptide</span></pre>
+  </div>
+  <p class="termcap">Look down the score column. It tracks the receptor, not the peptide.</p>
+
+  <div class="callout">
+    <p><strong>The diagnostic that settles it.</strong> Scoring FhaC peptides, which the model never
+    saw, the score moves by 0.006 when the peptide changes and by 0.078 when the CDR3 changes.
+    Thirteen times more. Outside its domain the network is scoring the T cell receptor and ignoring
+    the peptide entirely.</p>
+  </div>
+
+  <h3>The input nobody has</h3>
+  <p>NetTCR is the one tool here that needs a second input a protein sequence can never provide.
+  It scores a pair, so it needs CDR3 alpha and CDR3 beta from actual T cell sequencing. For FhaC
+  that data does not exist, which is an experimental gap rather than a gap in the pipeline.</p>
+</section>
+
+<section>
+  <p class="slide-tag">Slide 24 &middot; Q5</p>
+  <h2>What do we take forward?</h2>
+  <blockquote>Pathogen epitopes and tumour neoantigens are different problems.<cite>Orange box, slide 24</cite></blockquote>
+  <p class="lead">pVACtools is a pipeline, not a model. Filters chained over predictions that
+  already exist. Here the chain runs over FhaC using the topology from Q1, MHCflurry binding from
+  Q2, the immunogenicity model from Q3, and the TCR column that honestly stays empty after Q4.</p>
+
+  <div class="funnel">
+    <div class="step"><div class="bar" style="width:100%">All peptide and allele pairs</div><span class="count">2 880</span></div>
+    <div class="step"><div class="bar" style="width:96%">Outside the signal peptide &middot; Q1</div><span class="count">2 770</span></div>
+    <div class="step"><div class="bar" style="width:34%">Binding, %rank below 2 &middot; Q2</div><span class="count">163</span></div>
+    <div class="step"><div class="bar" style="width:26%">Presentation, %rank below 2 &middot; Q2</div><span class="count">109</span></div>
+    <div class="step"><div class="bar" style="width:18%">Immunogenicity above the median &middot; Q3</div><span class="count">54</span></div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>Peptide</th><th>Position</th><th>Region</th><th>HLA</th><th>nM</th><th>%rank</th><th>Immunog.</th><th>TCR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="pep">RLFDPAPLV</td><td class="num">103&ndash;111</td><td>POTRA</td><td>A*02:01</td><td class="num">14.9</td><td class="num ok">0.059</td><td class="num">0.853</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">LLNSYQITV</td><td class="num">465&ndash;473</td><td>mature</td><td>A*02:01</td><td class="num">11.7</td><td class="num ok">0.037</td><td class="num">0.565</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">RMAGLAAGV</td><td class="num">537&ndash;545</td><td>beta strand</td><td>A*02:01</td><td class="num">15.0</td><td class="num ok">0.060</td><td class="num">0.800</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">KQASVAPFV</td><td class="num">511&ndash;519</td><td>mature</td><td>A*02:01</td><td class="num">28.5</td><td class="num ok">0.148</td><td class="num">0.790</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">ALYDRGYAT</td><td class="num">134&ndash;142</td><td>POTRA</td><td>A*02:01</td><td class="num">42.6</td><td class="num ok">0.232</td><td class="num">0.808</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">AMPGWQDKV</td><td class="num">188&ndash;196</td><td>mature</td><td>A*02:01</td><td class="num">40.8</td><td class="num ok">0.222</td><td class="num">0.781</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">YATSIVTFV</td><td class="num">140&ndash;148</td><td>POTRA</td><td>A*02:01</td><td class="num">25.9</td><td class="num ok">0.131</td><td class="num">0.589</td><td class="dim">no evidence</td></tr>
+        <tr><td class="pep">SLLGKQASV</td><td class="num">507&ndash;515</td><td>mature</td><td>A*02:01</td><td class="num">22.6</td><td class="num ok">0.110</td><td class="num">0.652</td><td class="dim">no evidence</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="dim" style="font-size:.84rem">First 8 of 54. Every %rank shown is below 0.5, the strong
+  binder threshold from slide 21.</p>
+
+  <div class="callout">
+    <p><strong>The empty column is the important decision.</strong> <code>TCR_evidence</code> reads
+    "no evidence" for all 54 candidates. NetTCR returns a number for every one of them, and the
+    previous section shows that number means nothing. Leaving the cell empty rather than filling it
+    with something uninterpretable is probably the most transferable habit in the module.</p>
+  </div>
+
+  <div class="figures">
+    <figure>
+      <img src="fig-priorizacion.png" alt="Three panels: the filter funnel on a log scale, a scatter of binding against immunogenicity with the shortlist highlighted, and bars of the top 12 by combined score.">
+      <figcaption>The middle panel shows the same thing as slide 22. Binding and immunogenicity are
+      uncorrelated, which is exactly why both filters are needed.</figcaption>
+    </figure>
+  </div>
+
+  <h3>Can either tool take FhaC? They differ <span class="pending">discussion, not an exercise</span></h3>
+  <p>Neither pVACtools nor TIDE is run in this module. The chain above reproduces what pVACbind
+  does, by hand and with no install, which is enough to make the point. This comparison is here for
+  the discussion on slide 24.</p>
+  <p>It is tempting to read that slide as "both of these are for tumours, so neither works for a
+  pathogen". That is right for one of them and wrong for the other, and the difference is worth
+  knowing.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Entry point</th><th>Takes</th><th>Works for FhaC?</th></tr></thead>
+      <tbody>
+        <tr><td><code>pVACseq</code></td><td>a VCF of somatic variants plus the patient HLA type</td><td class="warn">no, needs a tumour</td></tr>
+        <tr><td><code>pVACfuse</code></td><td>fusion calls from tumour RNA</td><td class="warn">no, needs a tumour</td></tr>
+        <tr><td><code>pVACbind</code></td><td><strong>a FASTA of peptides</strong> plus an allele list</td><td class="ok">yes</td></tr>
+        <tr><td>TIDE</td><td>a tumour expression matrix</td><td class="warn">no, and never</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>pVACtools yes, through pVACbind.</strong> The figure on slide 24 shows pVACseq, which
+  starts from tumour sequencing, and that is what makes the whole pipeline look tumour only. But
+  pVACtools also ships <code>pVACbind</code>, whose input is a FASTA. Feed it the FhaC peptides and
+  an allele list and it runs the same filtering and ranking machinery. That is exactly what
+  exercise 14 reproduces by hand, which is why it is called a pVACtools style chain.</p>
+  <p class="dim" style="font-size:.86rem">One honest caveat for the room. pVACbind accepts any
+  FASTA, so it is mechanically applicable to a bacterial antigen, but the published validation of
+  pVACtools is on tumour neoantigens. Applicable is not the same as validated for this use.</p>
+
+  <p><strong>TIDE no, and not for a licensing or practical reason.</strong> Its input is an
+  expression matrix of a tumour and its output is one score per sample. There is no slot for a
+  protein sequence anywhere in it. The slide says it outright: <em>no peptide, no HLA allele, no
+  epitope anywhere in this diagram.</em></p>
+
+  <div class="callout">
+    <p><strong>The real divide is not tumour versus pathogen.</strong> It is what the tool takes as
+    input. A neoantigen pipeline needs the patient's own HLA type and their tumour sequencing
+    because the antigen is created by their mutations. FhaC needs neither, because the antigen is
+    the same for everyone infected. Any tool whose input is a sequence plus an allele list can take
+    FhaC. Any tool whose input is a patient sample cannot.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Aspect</th><th>pVACtools, what we did</th><th>TIDE</th></tr></thead>
+      <tbody>
+        <tr><td>Unit of analysis</td><td>peptide by allele</td><td>one tumour</td></tr>
+        <tr><td>Input</td><td>protein, HLA, predictions</td><td>RNA-seq expression</td></tr>
+        <tr><td>Output</td><td>ranked epitope list</td><td>one response score</td></tr>
+        <tr><td>Needs HLA?</td><td class="ok">yes</td><td class="dim">no</td></tr>
+        <tr><td>Works for FhaC?</td><td class="ok">yes</td><td class="warn">no, pathogen antigen</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section style="border-bottom:none">
+  <h2>What comes out at the end</h2>
+  <p class="lead">A ranked list of hypotheses, not a result. Every arrow narrowed the list and none
+  of them proved anything. SignalP said where the protein goes. MHCflurry gave a hypothesis about
+  the groove. DeepImmuno ranked candidates without classifying them. NetTCR is only valid inside
+  its 17 peptides.</p>
+
+  <div class="callout">
+    <p><strong>If one thing survives the session, make it this.</strong> Residues 103 to 122 of
+    FhaC carry a peptide that three independent class I tools all call a strong binder, and the
+    best class II binder in the whole protein, for different HLA molecules. Nothing on the slides
+    asked for that comparison. It came out of putting two tables side by side.</p>
+    <p>FhaC reaches the immune system as an extracellular protein, so its natural route is class II
+    and CD4. Every class I result here is strictly a hypothesis about cross presentation, which is
+    why that dual region matters more than any class I ranking on its own.</p>
+  </div>
+
+  <p>The next module takes the same protein and asks what the structure adds: the shape of the
+  peptide, MHC and TCR interface that none of these sequence models ever saw.</p>
+</section>
+
+<footer>
+  <p>Fully reproducible. Fourteen exercises run as Python scripts and a Colab notebook. Data is
+  downloaded from UniProt and from the DeepImmuno and NetTCR-2.0 repositories, and never
+  redistributed.</p>
+  <p>Architectures reimplemented from Li <em>et al.</em> (<em>Brief Bioinform</em> 2021),
+  Gfeller <em>et al.</em> (<em>Cell Syst</em> 2023) and Montemurro <em>et al.</em>
+  (<em>Commun Biol</em> 2021). Binding with MHCflurry 2.0. DeepTMHMM run under the DTU academic
+  licence.</p>
+  <p><strong>Academic and teaching use.</strong> None of these predictions is validated for
+  clinical decisions.</p>
+</footer>
+</div>

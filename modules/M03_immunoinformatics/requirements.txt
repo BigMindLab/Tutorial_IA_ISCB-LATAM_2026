@@ -1,0 +1,18 @@
+# Module M03.1 Immunoinformatics, ISCB-LATAM 2026 Tutorial IP3
+# Tested with Python 3.12 and on the Google Colab runtime.
+
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.4
+matplotlib>=3.8
+biopython>=1.83          # BLOSUM50 only, used by exercise 13
+torch>=2.2               # DeepImmuno-CNN and NetTCR-2.0 reimplementations
+mhcflurry>=2.1           # binding and presentation, exercises 3, 12 and 14
+
+# After installing mhcflurry, fetch its weights once:
+#     mhcflurry-downloads fetch models_class1_presentation
+
+# Optional, only for the licensed tool wrappers:
+# pybiolib              # DeepTMHMM through BioLib, needs an account
+# fair-esm==0.4.0       # required by the offline DeepTMHMM academic package,
+#                       # the pinned version matters, newer ones break it

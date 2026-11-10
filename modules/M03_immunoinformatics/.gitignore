@@ -1,0 +1,29 @@
+# Third party data is fetched by utils/download_data.py and never
+# redistributed here, because each source project has its own licence.
+data/after_pca.txt
+data/hla2paratopeTable_aligned.txt
+data/remove0123.csv
+data/train_ab_90_alphabeta.csv
+
+# Scored copies of those same third party peptide sets. Regenerated locally by
+# the exercises, not redistributed here for the same licensing reason.
+results/ex12_test_scored.csv
+
+# Licensed software is never committed. If you unpack SignalP, DeepTMHMM,
+# NetMHCpan, NetMHCIIpan, MixMHCpred or PRIME inside the module, keep it out.
+DeepTMHMM-Academic-License*/
+signalp6*/
+netMHC*/
+MixMHCpred/
+PRIME/
+DeepImmuno/
+biolib_results/
+
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# data/precomputed and results are committed on purpose, so that the exercises
+# can be read on GitHub without running anything.

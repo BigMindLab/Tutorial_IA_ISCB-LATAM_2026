@@ -1,0 +1,58 @@
+==============================================================================
+EXERCISE 15 - NetMHCpan and NetMHCIIpan through the IEDB API
+==============================================================================
+
+  These are the real DTU tools, run on IEDB's public cluster, so no
+  local licence is needed. The API returns the eluted ligand output,
+  which is the column to rank on anyway.
+
+  Thresholds, from slide 21, and they differ by class:
+    class I   SB below 0.5   WB below 2.0
+    class II  SB below 2.0   WB below 10.0
+
+      protein: 584 residues from fhaC.fasta
+
+[15.1] Class I, presented to CD8 cytotoxic T cells
+      NetMHCpan 4.1  HLA-A*02:01  lengths 8,9,10,11
+        2302 peptides
+      NetMHCpan 4.1  HLA-A*24:02  lengths 8,9,10,11
+        2302 peptides
+      NetMHCpan 4.1  HLA-B*07:02  lengths 8,9,10,11
+        2302 peptides
+      class I: 6906 rows, {'SB': 71, 'WB': 150, 'NB': 6685}
+      top 5 by %rank:
+        RLFDPAPLV        HLA-A*02:01  rank_EL=0.01     SB
+        GYATSIVTF        HLA-A*24:02  rank_EL=0.01     SB
+        LYINAGLSF        HLA-A*24:02  rank_EL=0.01     SB
+        RPGLVGRAL        HLA-B*07:02  rank_EL=0.01     SB
+        RGYATSIVTF       HLA-A*24:02  rank_EL=0.02     SB
+
+[15.2] Class II, presented to CD4 helper T cells
+      This is the one that matters most for fhaC. An extracellular
+      bacterial protein is endocytosed and presented on class II,
+      so class I results are a hypothesis about cross presentation.
+      NetMHCIIpan 4.0  DRB1_0401  sent as DRB1*04:01
+        570 peptides
+      NetMHCIIpan 4.0  DRB1_1501  sent as DRB1*15:01
+        570 peptides
+      class II: 1140 rows, {'SB': 38, 'WB': 87, 'NB': 1015}
+      top 5 by %rank:
+        APLVQDYLNRPLDNE  DRB1_1501    rank_EL=0.04     SB
+        PAPLVQDYLNRPLDN  DRB1_1501    rank_EL=0.08     SB
+        ATSIVTFVPPGVVDG  DRB1_1501    rank_EL=0.09     SB
+        RYGQYQSAGNSRSFG  DRB1_0401    rank_EL=0.19     SB
+        YGQYQSAGNSRSFGL  DRB1_0401    rank_EL=0.2      SB
+
+==============================================================================
+QUESTIONS TO DISCUSS
+==============================================================================
+  1. The API gives the eluted ligand output and not binding affinity.
+     Slide 21 says BA is trained on measured affinities and EL on
+     peptides eluted from cells. Which one would you rank on, and why?
+  2. Compare these class I hits against MHCflurry and MixMHCpred. How
+     many peptides do all three call a strong binder?
+  3. Class II uses a threshold of 2 where class I uses 0.5. Why can a
+     looser threshold still be the right call for class II?
+  4. A class II 15-mer is scored through a 9-mer core. Look at the core
+     column: do several 15-mers share one core? What does that mean for
+     counting candidates?

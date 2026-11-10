@@ -1,0 +1,144 @@
+==============================================================================
+EXERCISE 13 - TCR recognition (slide 23)
+==============================================================================
+
+  TWO DATASETS, DO NOT CONFUSE THEM
+  ---------------------------------
+  [TRAINING]  16,464 TCR and peptide pairs published with NetTCR-2.0,
+              covering only 17 distinct peptides. fhaC cannot be used
+              for training because no TCR has ever been measured
+              against it. Used in blocks 13.1 to 13.4.
+
+  [fhaC]      YOUR protein. It appears only in block 13.5, and the
+              conclusion there is NEGATIVE: this model must not be
+              used on fhaC. That negative answer is the result.
+
+[13.0] BLOSUM50 encoding
+      matrix (20, 20), divided by 5 to keep the range comfortable
+      CASSLAPGATNEKLFF becomes (30, 20), 16 rows carry signal and the rest is padding
+
+[13.1] [TRAINING] The NetTCR-2.0 data
+      16464 pairs, binders=2744, non binders=13720
+      partitions: [np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5)]
+
+      ONLY 17 distinct peptides in the whole dataset:
+           positives  total
+peptide                    
+GILGFVFTL       1872  11232
+GLCTLVAML        361   2166
+NLVPMVATV        290   1740
+LLFGYPVYV         52    312
+FLYALALLL         37    222
+RTLNAWVKV         26    156
+IMDQVPFSV         21    126
+KTWGQYWQV         18    108
+MLDLQPETT         15     90
+RMFPNAPYL         14     84
+YLLEMLWRL         11     66
+SLFNTVATL          9     54
+KVLEYVIKV          7     42
+SLLMWITQV          6     36
+CLGGLLTMV          3     18
+KVAELVHFL          1      6
+KLQCVDLHV          1      6
+
+      That number is the key to the entire slide. Three peptides hold
+      most of the data and nine have fewer than 20 positive TCRs.
+
+[13.2] [TRAINING] Train on partitions 1 to 4, evaluate on partition 5
+      train=13830  test=2634
+      epoch  5/25  AUC=0.801
+      epoch 10/25  AUC=0.838
+      epoch 15/25  AUC=0.850
+      epoch 20/25  AUC=0.861
+      epoch 25/25  AUC=0.868
+      global AUC on partition 5: 0.868
+
+[13.3] [TRAINING] AUC per peptide, which the global average hides
+  peptide  n_test  positives      AUC  n_train
+GILGFVFTL    1518        253 0.897411     9714
+GLCTLVAML     534         89 0.859260     1632
+NLVPMVATV     300         50 0.743680     1440
+FLYALALLL     108         18 0.914198      114
+RTLNAWVKV      42          7 0.653061      114
+IMDQVPFSV      24          4 0.525000      102
+MLDLQPETT      18          3 0.711111       72
+RMFPNAPYL      18          3 0.577778       66
+LLFGYPVYV      18          3 0.200000      294
+KTWGQYWQV      12          2 0.650000       96
+SLLMWITQV      12          2 0.550000       24
+YLLEMLWRL      12          2 0.450000       54
+CLGGLLTMV       6          1 0.600000       12
+KVLEYVIKV       6          1 0.600000       36
+SLFNTVATL       6          1 1.000000       48
+
+      correlation between log10(training TCRs) and AUC: r=0.32
+
+[13.4] [TRAINING] THE KEY EXPERIMENT: leave one peptide out
+      Train with no TCR against GILGFVFTL, then evaluate on GILGFVFTL.
+      That is exactly the situation of a new peptide, like any from fhaC.
+      train=5232 (without GILGFVFTL)  test=1518
+      [LOPO] epoch  5/25  AUC=0.449
+      [LOPO] epoch 10/25  AUC=0.463
+      [LOPO] epoch 15/25  AUC=0.496
+      [LOPO] epoch 20/25  AUC=0.536
+      [LOPO] epoch 25/25  AUC=0.569
+
+      AUC on GILGFVFTL WITH the peptide in training    : 0.897
+      AUC on GILGFVFTL WITHOUT the peptide in training : 0.569
+      (0.500 is chance)
+
+      This is what the slide means when it says the model can only be
+      applied to the peptides in its training data. It is not a bad
+      model. It learned CDR3 motifs specific to a handful of peptides,
+      not a general rule of recognition.
+      figure written to results/ex13_limits.png
+
+[13.5] [fhaC] What if we use it on an fhaC peptide?
+      Scoring 5 fhaC peptides against 3 real TCRs from the dataset:
+  peptide      CDR3a            CDR3b    score
+MTDATNRFR AASAQDDKII ASSYSFGGAPAQETQY 0.352795
+MTDATNRFR ALNQAGTALI  ASSLTTLAGVPYEQF 0.198496
+MTDATNRFR ATKNTGNQFY      ASSVGLPYEQY 0.298885
+TDATNRFRP AASAQDDKII ASSYSFGGAPAQETQY 0.354905
+TDATNRFRP ALNQAGTALI  ASSLTTLAGVPYEQF 0.200518
+TDATNRFRP ATKNTGNQFY      ASSVGLPYEQY 0.301012
+DATNRFRPG AASAQDDKII ASSYSFGGAPAQETQY 0.357141
+DATNRFRPG ALNQAGTALI  ASSLTTLAGVPYEQF 0.200926
+DATNRFRPG ATKNTGNQFY      ASSVGLPYEQY 0.302296
+ATNRFRPGL AASAQDDKII ASSYSFGGAPAQETQY 0.337970
+ATNRFRPGL ALNQAGTALI  ASSLTTLAGVPYEQF 0.190760
+ATNRFRPGL ATKNTGNQFY      ASSVGLPYEQY 0.286808
+TNRFRPGLV AASAQDDKII ASSYSFGGAPAQETQY 0.352899
+TNRFRPGLV ALNQAGTALI  ASSLTTLAGVPYEQF 0.196239
+TNRFRPGLV ATKNTGNQFY      ASSVGLPYEQY 0.296605
+
+      score range: 0.191 to 0.357
+
+      LOOK AT THIS CAREFULLY. Standard deviation of the score ...
+        ... when the PEPTIDE changes, TCR fixed : 0.0060
+        ... when the TCR changes, peptide fixed : 0.0780
+
+      The score barely moves when the peptide changes but it does move
+      when the TCR changes. On peptides it has never seen, the model is
+      essentially scoring the CDR3 and ignoring the peptide. That is the
+      clearest possible demonstration that it is not answering the
+      question we are asking it.
+
+      The model RETURNS a number for every pair. None of them is
+      interpretable: fhaC is not in the training set, these TCRs were
+      never measured against it, and there is no HLA context in the input.
+      Practical consequence for exercise 14: the TCR column for fhaC is
+      marked 'no evidence' rather than filled with a score.
+
+==============================================================================
+QUESTIONS TO DISCUSS
+==============================================================================
+  1. The global AUC on partition 5 is high. Looking at the per peptide
+     table, why is reporting that number alone misleading?
+  2. Non binders are built by pairing TCRs with random peptides. What
+     bias does that introduce, and how would you notice it?
+  3. The input does not include the HLA. Two people with different HLA
+     and the same CDR3 get the same score. Is that right?
+  4. If you wanted to use NetTCR for fhaC, what experimental data would
+     you have to generate first?
